@@ -330,7 +330,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     validation?: bool|array{ // Validation configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         cache?: scalar|Param|null, // Deprecated: Setting the "framework.validation.cache.cache" configuration option is deprecated. It will be removed in version 8.0.
  *         enable_attributes?: bool|Param, // Default: true
  *         static_method?: string|list<scalar|Param|null>,
@@ -352,7 +352,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         enabled?: bool|Param, // Default: false
  *     },
  *     serializer?: bool|array{ // Serializer configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         enable_attributes?: bool|Param, // Default: true
  *         name_converter?: scalar|Param|null,
  *         circular_reference_handler?: scalar|Param|null,
@@ -1327,6 +1327,58 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         cache?: scalar|Param|null, // Storage to track blocked tokens // Default: "cache.app"
  *     },
  * }
+ * @psalm-type DoctrineMigrationsConfig = array{
+ *     enable_service_migrations?: bool|Param, // Whether to enable fetching migrations from the service container. // Default: false
+ *     migrations_paths?: array<string, scalar|Param|null>,
+ *     services?: array<string, scalar|Param|null>,
+ *     factories?: array<string, scalar|Param|null>,
+ *     storage?: array{ // Storage to use for migration status metadata.
+ *         table_storage?: array{ // The default metadata storage, implemented as a table in the database.
+ *             table_name?: scalar|Param|null, // Default: null
+ *             version_column_name?: scalar|Param|null, // Default: null
+ *             version_column_length?: scalar|Param|null, // Default: null
+ *             executed_at_column_name?: scalar|Param|null, // Default: null
+ *             execution_time_column_name?: scalar|Param|null, // Default: null
+ *         },
+ *     },
+ *     migrations?: list<scalar|Param|null>,
+ *     connection?: scalar|Param|null, // Connection name to use for the migrations database. // Default: null
+ *     em?: scalar|Param|null, // Entity manager name to use for the migrations database (available when doctrine/orm is installed). // Default: null
+ *     all_or_nothing?: scalar|Param|null, // Run all migrations in a transaction. // Default: false
+ *     check_database_platform?: scalar|Param|null, // Adds an extra check in the generated migrations to allow execution only on the same platform as they were initially generated on. // Default: true
+ *     custom_template?: scalar|Param|null, // Custom template path for generated migration classes. // Default: null
+ *     organize_migrations?: scalar|Param|null, // Organize migrations mode. Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false // Default: false
+ *     enable_profiler?: bool|Param, // Whether or not to enable the profiler collector to calculate and visualize migration status. This adds some queries overhead. // Default: false
+ *     transactional?: bool|Param, // Whether or not to wrap migrations in a single transaction. // Default: true
+ * }
+ * @psalm-type NelmioCorsConfig = array{
+ *     defaults?: array{
+ *         allow_credentials?: bool|Param, // Default: false
+ *         allow_origin?: list<scalar|Param|null>,
+ *         allow_headers?: list<scalar|Param|null>,
+ *         allow_methods?: list<scalar|Param|null>,
+ *         allow_private_network?: bool|Param, // Default: false
+ *         expose_headers?: list<scalar|Param|null>,
+ *         max_age?: scalar|Param|null, // Default: 0
+ *         hosts?: list<scalar|Param|null>,
+ *         origin_regex?: bool|Param, // Default: false
+ *         forced_allow_origin_value?: scalar|Param|null, // Default: null
+ *         skip_same_as_origin?: bool|Param, // Default: true
+ *     },
+ *     paths?: array<string, array{ // Default: []
+ *         allow_credentials?: bool|Param,
+ *         allow_origin?: list<scalar|Param|null>,
+ *         allow_headers?: list<scalar|Param|null>,
+ *         allow_methods?: list<scalar|Param|null>,
+ *         allow_private_network?: bool|Param,
+ *         expose_headers?: list<scalar|Param|null>,
+ *         max_age?: scalar|Param|null, // Default: 0
+ *         hosts?: list<scalar|Param|null>,
+ *         origin_regex?: bool|Param,
+ *         forced_allow_origin_value?: scalar|Param|null, // Default: null
+ *         skip_same_as_origin?: bool|Param,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1335,6 +1387,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     doctrine?: DoctrineConfig,
  *     security?: SecurityConfig,
  *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *     doctrine_migrations?: DoctrineMigrationsConfig,
+ *     nelmio_cors?: NelmioCorsConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1344,6 +1398,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         doctrine?: DoctrineConfig,
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1353,6 +1409,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         doctrine?: DoctrineConfig,
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1362,6 +1420,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         doctrine?: DoctrineConfig,
  *         security?: SecurityConfig,
  *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         doctrine_migrations?: DoctrineMigrationsConfig,
+ *         nelmio_cors?: NelmioCorsConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,
