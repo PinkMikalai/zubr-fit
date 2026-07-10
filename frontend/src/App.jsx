@@ -1,15 +1,12 @@
-import React from 'react'
-import Header from './components/layout/Header'
-import Footer from './components/layout/Footer'
-import { BrowserRouter, Routes, Route,Navigate } from 'react-router-dom'
-
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import ProtectedRoute from './components/ProtectedRoute';
+import './App.css';
 
 function App() {
- 
-
   return (
-    <> 
+    <AuthProvider>
       <BrowserRouter>
         <Header />
         <Routes>
@@ -17,8 +14,8 @@ function App() {
         </Routes>
         <Footer />
       </BrowserRouter>
-    </>
-  )
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;
