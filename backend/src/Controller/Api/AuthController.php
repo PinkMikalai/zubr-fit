@@ -1,0 +1,185 @@
+<?php
+
+namespace App\Controller\Api;
+
+use App\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+
+#[Route('/auth', name: 'auth_')]
+class AuthController extends AbstractController
+{
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UserPasswordHasherInterface $passwordHasher,
+        private JWTTokenManagerInterface $jwtTokenManager,
+        private ValidatorInterface $validator
+    ) {
+    }
+
+    #[Route('/register', name: 'register', methods: ['POST'])]
+    public function register(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid JSON data',
+                'errors' => 'Invalid JSON data',
+            ], 400);
+        }
+
+        // Créer l'utilisateur
+        $user = new User();
+        $user->setEmail($data['email'] ?? '');
+        $user->setFirstname($data['firstname'] ?? '');
+        $user->setLastname($data['lastname'] ?? '');
+        $user->setPhoneNumber($data['phoneNumber'] ?? null);
+        $user->setAvatar($data['avatar'] ?? null);
+
+            // Rôle obligatoire : doit être "user" ou "coach"
+        if (!isset($data['role']) || empty($data['role'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Role is required',
+            ], 422);
+        }
+
+        // Définir les rôles autorisés
+        $allowedRoles = [
+            'user' => 'ROLE_USER',
+            'coach' => 'ROLE_COACH',
+        ];
+
+        // Vérifier si le rôle est valide
+        if (!isset($allowedRoles[$data['role']])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid role. Must be "user" or "coach"',
+            ], 422);
+        }
+
+        $user->setRoles([$allowedRoles[$data['role']]]);
+
+        // Hasher le password
+        if (isset($data['password'])) {
+            $hashedPassword = $this->passwordHasher->hashPassword(
+                $user,
+                $data['password']
+            );
+            $user->setPassword($hashedPassword);
+        }
+
+        // Valider l'utilisateur et renvoyer les erreurs si elles existent
+        $errors = $this->validator->validate($user);
+
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+            return $this->json([
+                'status' => false,
+                'message' => 'Validation failed',
+                'errors' => $errorMessages,
+            ], 422);
+        }
+
+        // Vérifier si l'email existe déjà
+        $existingUser = $this->em
+            ->getRepository(User::class)
+            ->findOneBy(['email' => $user->getEmail()]);
+
+        if ($existingUser) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Email already registered',
+            ], 409);
+        }
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $this->json([
+            'status' => true,
+            'message' => 'User registered successfully. You can now login.',
+            'data' => [
+                'user' => $user,
+            ],
+        ], 201);
+    }
+
+    #[Route('/login', name: 'login', methods: ['POST'])]
+    public function login(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!$data || !isset($data['email']) || !isset($data['password'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid JSON data or missing email or password',
+            ], 400);
+        }
+
+        // Vérifier utilisateur et mot de passe (message générique pour la sécurité)
+        $user = $this->em
+            ->getRepository(User::class)
+            ->findOneBy(['email' => $data['email']]);
+
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $data['password'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid credentials',
+            ], 401);
+        }
+
+        // Créer le token JWT
+        $token = $this->jwtTokenManager->create($user);
+
+        return $this->json([
+            'status' => true,
+            'message' => 'User logged in successfully',
+            'data' => [
+                'token' => $token,
+                'user' => $user,
+            ],
+        ], 200);
+    }
+
+    #[Route('/me', name: 'me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        return $this->json([
+            'status' => true,
+            'message' => 'User information',
+            'data' => [
+                'user' => $user,
+            ],
+        ], 200);
+    }
+
+    #[Route('/logout', name: 'logout', methods: ['POST'])]
+    public function logout(): JsonResponse
+    {
+        return $this->json([
+            'status' => true,
+            'message' => 'Logged out successfully. Please remove token from client.',
+        ], 200);
+    }
+}
