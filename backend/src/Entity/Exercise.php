@@ -7,8 +7,10 @@ use App\Enum\Level;
 use App\Repository\ExerciseRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ExerciseRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Exercise
 {
     #[ORM\Id]
@@ -17,21 +19,37 @@ class Exercise
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins 2 caractères',
+        maxMessage: 'Le nom ne peut pas dépasser 255 caractères'
+    )]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'La description doit contenir au moins 10 caractères'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(enumType: Category::class)]
+    #[Assert\NotBlank(message: 'La catégorie est obligatoire')]
     private ?Category $Category = null;
 
     #[ORM\Column(enumType: Level::class)]
+    #[Assert\NotBlank(message: 'Le niveau est obligatoire')]
     private ?Level $level = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255, maxMessage: 'Le chemin de l\'illustration ne peut pas dépasser 255 caractères')]
     private ?string $illustration = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255, maxMessage: 'Le chemin de la vidéo ne peut pas dépasser 255 caractères')]
     private ?string $video = null;
 
     #[ORM\Column]
@@ -139,5 +157,18 @@ class Exercise
         $this->updated_at = $updated_at;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
     }
 }
