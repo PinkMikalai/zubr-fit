@@ -3,23 +3,23 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-#[Route('/auth', name: 'auth_')]
+#[Route('/auth', name: 'auth')]
 class AuthController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $em,
         private UserPasswordHasherInterface $passwordHasher,
         private JWTTokenManagerInterface $jwtTokenManager,
-        private ValidatorInterface $validator
+        private ValidationService $validationService
     ) {
     }
 
@@ -78,18 +78,9 @@ class AuthController extends AbstractController
         }
 
         // Valider l'utilisateur et renvoyer les erreurs si elles existent
-        $errors = $this->validator->validate($user);
-
-        if (count($errors) > 0) {
-            $errorMessages = [];
-            foreach ($errors as $error) {
-                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
-            }
-            return $this->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors' => $errorMessages,
-            ], 422);
+        $errorResponse = $this->validationService->getErrorResponse($user);
+        if ($errorResponse) {
+            return $errorResponse;
         }
 
         // Vérifier si l'email existe déjà

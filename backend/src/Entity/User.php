@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: '`user`')]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'This email is already registered')]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -25,8 +26,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Assert\NotBlank]
-    #[Assert\Email]
+    #[Assert\NotBlank(message: 'L\'email est obligatoire')]
+    #[Assert\Email(message: 'L\'email n\'est pas valide')]
+    #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas dépasser 180 caractères')]
     #[Groups(['user:read'])]
     private ?string $email = null;
 
@@ -41,18 +43,29 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le nom doit contenir au moins 2 caractères',
+        maxMessage: 'Le nom ne peut pas dépasser 255 caractères'
+    )]
     #[Groups(['user:read'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\NotBlank(message: 'Le prénom est obligatoire')]
+    #[Assert\Length(
+        min: 2,
+        max: 255,
+        minMessage: 'Le prénom doit contenir au moins 2 caractères',
+        maxMessage: 'Le prénom ne peut pas dépasser 255 caractères'
+    )]
     #[Groups(['user:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\Length(max: 20, maxMessage: 'Le numéro de téléphone ne peut pas dépasser 20 caractères')]
     #[Groups(['user:read'])]
     private ?string $phoneNumber = null;
 
@@ -76,8 +89,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->created_at = new \DateTimeImmutable();
-        $this->updated_at = new \DateTimeImmutable();
         $this->Seance = new ArrayCollection();
     }
 
@@ -237,5 +248,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->Seance->removeElement($seance);
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
+    }
+
+    #[ORM\PreUpdate]
+    public function setUpdatedAtValue(): void
+    {
+        $this->updated_at = new \DateTimeImmutable();
     }
 }
