@@ -7,6 +7,7 @@ use App\Enum\Level;
 use App\Repository\ExerciseRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ExerciseRepository::class)]
@@ -57,6 +58,11 @@ class Exercise
 
     #[ORM\Column(name: 'updated_at')]
     private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'exercises')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Ignore]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -170,5 +176,17 @@ class Exercise
     public function setUpdatedAtValue(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }
