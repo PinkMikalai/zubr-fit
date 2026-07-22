@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SeanceRepository::class)]
@@ -36,19 +37,20 @@ class Seance
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $completed_at = null;
+    #[ORM\Column(name: 'completed_at', nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
+    #[ORM\Column(name: 'created_at')]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    private ?\DateTimeImmutable $updated_at = null;
+    #[ORM\Column(name: 'updated_at')]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'Seance')]
+    #[Ignore]
     private Collection $users;
 
     public function __construct()
@@ -99,36 +101,36 @@ class Seance
 
     public function getCompletedAt(): ?\DateTimeImmutable
     {
-        return $this->completed_at;
+        return $this->completedAt;
     }
 
-    public function setCompletedAt(?\DateTimeImmutable $completed_at): static
+    public function setCompletedAt(?\DateTimeImmutable $completedAt): static
     {
-        $this->completed_at = $completed_at;
+        $this->completedAt = $completedAt;
 
         return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->updated_at;
+        return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
-        $this->updated_at = $updated_at;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -163,13 +165,13 @@ class Seance
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->created_at = new \DateTimeImmutable();
-        $this->updated_at = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void
     {
-        $this->updated_at = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

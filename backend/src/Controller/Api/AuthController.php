@@ -12,7 +12,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-#[Route('/auth', name: 'auth')]
+#[Route('/api/auth', name: 'auth')]
 class AuthController extends AbstractController
 {
     public function __construct(
