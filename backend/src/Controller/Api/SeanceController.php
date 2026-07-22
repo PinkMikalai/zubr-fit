@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Api;
 
 use App\Entity\Seance;
 use App\Entity\User;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/seance', name: 'seance')]
+#[Route('/api/seance', name: 'seance')]
 final class SeanceController extends AbstractController
 {
     public function __construct(
