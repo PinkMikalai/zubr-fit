@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -22,21 +22,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank(message: 'L\'email est obligatoire')]
     #[Assert\Email(message: 'L\'email n\'est pas valide')]
     #[Assert\Length(max: 180, maxMessage: 'L\'email ne peut pas dépasser 180 caractères')]
-    #[Groups(['user:read'])]
     private ?string $email = null;
 
     /**
      * @var list<string>
      */
     #[ORM\Column(type: 'json')]
-    #[Groups(['user:read'])]
     private array $roles = ['ROLE_USER'];
 
     #[ORM\Column]
@@ -50,7 +47,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Le nom doit contenir au moins 2 caractères',
         maxMessage: 'Le nom ne peut pas dépasser 255 caractères'
     )]
-    #[Groups(['user:read'])]
     private ?string $lastname = null;
 
     #[ORM\Column(length: 255)]
@@ -61,30 +57,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         minMessage: 'Le prénom doit contenir au moins 2 caractères',
         maxMessage: 'Le prénom ne peut pas dépasser 255 caractères'
     )]
-    #[Groups(['user:read'])]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     #[Assert\Length(max: 20, maxMessage: 'Le numéro de téléphone ne peut pas dépasser 20 caractères')]
-    #[Groups(['user:read'])]
     private ?string $phoneNumber = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read'])]
     private ?string $avatar = null;
 
-    #[ORM\Column]
-    #[Groups(['user:read'])]
-    private ?\DateTimeImmutable $created_at = null;
+    #[ORM\Column(name: 'created_at')]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    #[ORM\Column]
-    #[Groups(['user:read'])]
-    private ?\DateTimeImmutable $updated_at = null;
+    #[ORM\Column(name: 'updated_at')]
+    private ?\DateTimeImmutable $updatedAt = null;
 
     /**
      * @var Collection<int, Seance>
      */
     #[ORM\ManyToMany(targetEntity: Seance::class, inversedBy: 'users')]
+    #[Ignore]
     private Collection $Seance;
 
     public function __construct()
@@ -204,24 +196,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
-        $this->created_at = $created_at;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
-        return $this->updated_at;
+        return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
-        $this->updated_at = $updated_at;
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }
@@ -253,13 +245,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\PrePersist]
     public function setCreatedAtValue(): void
     {
-        $this->created_at = new \DateTimeImmutable();
-        $this->updated_at = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     #[ORM\PreUpdate]
     public function setUpdatedAtValue(): void
     {
-        $this->updated_at = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }
