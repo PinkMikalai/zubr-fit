@@ -39,7 +39,9 @@ class MediaUploader
     public function __construct(
         private string $avatarsDirectory,
         private SluggerInterface $slugger,
-        private MimeTypesInterface $mimeTypes
+        private MimeTypesInterface $mimeTypes,
+        private ?string $illustrationsDirectory = null,
+        private ?string $videosDirectory = null
     ) {
     }
 
@@ -72,6 +74,20 @@ class MediaUploader
     }
 
     /**
+     * Upload une illustration (alias pour uploadImage avec répertoire par défaut)
+     */
+    public function uploadIllustration(UploadedFile $file): array
+    {
+        return $this->uploadFile(
+            file: $file,
+            directory: $this->illustrationsDirectory,
+            maxSize: self::MAX_IMAGE_SIZE,
+            allowedMimeTypes: self::ALLOWED_IMAGE_MIME_TYPES,
+            urlPrefix: '/uploads/illustrations/'
+        );
+    }
+
+    /**
      * Upload une vidéo
      */
     public function uploadVideo(UploadedFile $file, string $directory, string $urlPrefix = '/uploads/'): array
@@ -82,6 +98,20 @@ class MediaUploader
             maxSize: self::MAX_VIDEO_SIZE,
             allowedMimeTypes: self::ALLOWED_VIDEO_MIME_TYPES,
             urlPrefix: $urlPrefix
+        );
+    }
+
+    /**
+     * Upload une vidéo d'exercice (alias pour uploadVideo avec répertoire par défaut)
+     */
+    public function uploadExerciseVideo(UploadedFile $file): array
+    {
+        return $this->uploadFile(
+            file: $file,
+            directory: $this->videosDirectory,
+            maxSize: self::MAX_VIDEO_SIZE,
+            allowedMimeTypes: self::ALLOWED_VIDEO_MIME_TYPES,
+            urlPrefix: '/uploads/videos/'
         );
     }
 
@@ -260,6 +290,22 @@ class MediaUploader
     public function deleteAvatar(?string $filename): bool
     {
         return $this->deleteFile($this->avatarsDirectory, $filename);
+    }
+
+    /**
+     * Supprime une illustration
+     */
+    public function deleteIllustration(?string $filename): bool
+    {
+        return $this->deleteFile($this->illustrationsDirectory, $filename);
+    }
+
+    /**
+     * Supprime une vidéo
+     */
+    public function deleteVideo(?string $filename): bool
+    {
+        return $this->deleteFile($this->videosDirectory, $filename);
     }
 
     /**

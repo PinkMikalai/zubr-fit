@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/user', name: 'user_')]
+#[Route('/api/profile', name: 'profile')]
 final class UserController extends AbstractController
 {
     public function __construct(
@@ -53,7 +53,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/profile', name: 'update', methods: ['POST'])]
+    #[Route('/update', name: 'update', methods: ['POST'])]
     public function update(Request $request): JsonResponse
     {
         $user = $this->getUser();

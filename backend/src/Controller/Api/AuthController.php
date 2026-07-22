@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,47 +20,75 @@ class AuthController extends AbstractController
         private EntityManagerInterface $em,
         private UserPasswordHasherInterface $passwordHasher,
         private JWTTokenManagerInterface $jwtTokenManager,
-        private ValidationService $validationService
+        private ValidationService $validationService,
+        private MediaUploader $mediaUploader
     ) {
     }
 
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $avatarFile = $request->files->get('avatar') ?? $request->files->get('Avatar');
+        
+        $contentType = $request->headers->get('Content-Type');
+        
+        if (str_contains($contentType, 'multipart/form-data')) {
+            $data = $request->request->all();
+        } else {
+            $data = json_decode($request->getContent(), true) ?? [];
+        }
 
-        if (!$data) {
+        if (empty($data)) {
             return $this->json([
                 'status' => false,
-                'message' => 'Invalid JSON data',
-                'errors' => 'Invalid JSON data',
+                'message' => 'Invalid data',
+                'errors' => 'Invalid data',
             ], 400);
         }
 
-        // Créer l'utilisateur
+        $avatarFilename = null;
+        if ($avatarFile) {
+            $result = $this->mediaUploader->uploadAvatar($avatarFile);
+            
+            if (!$result['success']) {
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+            
+            $avatarFilename = $result['filename'];
+        }
+
         $user = new User();
         $user->setEmail($data['email'] ?? '');
         $user->setFirstname($data['firstname'] ?? '');
         $user->setLastname($data['lastname'] ?? '');
         $user->setPhoneNumber($data['phoneNumber'] ?? null);
-        $user->setAvatar($data['avatar'] ?? null);
+        $user->setAvatar($avatarFilename);
 
-            // Rôle obligatoire : doit être "user" ou "coach"
         if (!isset($data['role']) || empty($data['role'])) {
+            if ($avatarFilename) {
+                $this->mediaUploader->deleteAvatar($avatarFilename);
+            }
+            
             return $this->json([
                 'status' => false,
                 'message' => 'Role is required',
             ], 422);
         }
 
-        // Définir les rôles autorisés
         $allowedRoles = [
             'user' => 'ROLE_USER',
             'coach' => 'ROLE_COACH',
         ];
 
-        // Vérifier si le rôle est valide
         if (!isset($allowedRoles[$data['role']])) {
+            if ($avatarFilename) {
+                $this->mediaUploader->deleteAvatar($avatarFilename);
+            }
+            
             return $this->json([
                 'status' => false,
                 'message' => 'Invalid role. Must be "user" or "coach"',
@@ -68,7 +97,6 @@ class AuthController extends AbstractController
 
         $user->setRoles([$allowedRoles[$data['role']]]);
 
-        // Hasher le password
         if (isset($data['password'])) {
             $hashedPassword = $this->passwordHasher->hashPassword(
                 $user,
@@ -77,18 +105,23 @@ class AuthController extends AbstractController
             $user->setPassword($hashedPassword);
         }
 
-        // Valider l'utilisateur et renvoyer les erreurs si elles existent
         $errorResponse = $this->validationService->getErrorResponse($user);
         if ($errorResponse) {
+            if ($avatarFilename) {
+                $this->mediaUploader->deleteAvatar($avatarFilename);
+            }
             return $errorResponse;
         }
 
-        // Vérifier si l'email existe déjà
         $existingUser = $this->em
             ->getRepository(User::class)
             ->findOneBy(['email' => $user->getEmail()]);
 
         if ($existingUser) {
+            if ($avatarFilename) {
+                $this->mediaUploader->deleteAvatar($avatarFilename);
+            }
+            
             return $this->json([
                 'status' => false,
                 'message' => 'Email already registered',
@@ -103,6 +136,7 @@ class AuthController extends AbstractController
             'message' => 'User registered successfully. You can now login.',
             'data' => [
                 'user' => $user,
+                'avatarUrl' => $avatarFilename ? '/uploads/avatars/' . $avatarFilename : null
             ],
         ], 201);
     }
