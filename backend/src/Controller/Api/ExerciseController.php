@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Level;
 use App\Repository\ExerciseRepository;
+use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +21,8 @@ final class ExerciseController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         private ValidationService $validationService,
-        private ExerciseRepository $exerciseRepository
+        private ExerciseRepository $exerciseRepository,
+        private MediaUploader $mediaUploader
     ) {
     }
 
@@ -36,7 +38,7 @@ final class ExerciseController extends AbstractController
             ], 401);
         }
 
-        $data = $this->exerciseRepository->findAllDESC();
+        $data = $this->exerciseRepository->findAllByUserDESC($user);
 
         if (!$data) {
             return $this->json([
@@ -53,7 +55,7 @@ final class ExerciseController extends AbstractController
         ]);
     }
 
-    #[Route('/', name: 'exercise_create', methods: ['POST'])]
+    #[Route('/new', name: 'exercise_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -65,21 +67,63 @@ final class ExerciseController extends AbstractController
             ], 401);
         }
 
-        $data = json_decode($request->getContent(), true);
+        $illustrationFile = $request->files->get('illustration');
+        $videoFile = $request->files->get('video');
 
-        if (!$data) {
+        $contentType = $request->headers->get('Content-Type');
+        
+        if (str_contains($contentType, 'multipart/form-data')) {
+            $data = $request->request->all();
+        } else {
+            $data = json_decode($request->getContent(), true) ?? [];
+        }
+
+        if (empty($data)) {
             return $this->json([
                 'status' => false,
                 'data' => null,
-                'message' => 'Invalid JSON data'
+                'message' => 'Invalid data'
             ], 400);
+        }
+
+        $illustrationFilename = null;
+        if ($illustrationFile) {
+            $result = $this->mediaUploader->uploadIllustration($illustrationFile);
+            
+            if (!$result['success']) {
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+            
+            $illustrationFilename = $result['filename'];
+        }
+
+        $videoFilename = null;
+        if ($videoFile) {
+            $result = $this->mediaUploader->uploadExerciseVideo($videoFile);
+            
+            if (!$result['success']) {
+                if ($illustrationFilename) {
+                    $this->mediaUploader->deleteIllustration($illustrationFilename);
+                }
+                
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+            
+            $videoFilename = $result['filename'];
         }
 
         $exercise = new Exercise();
         $exercise->setName($data['name'] ?? '');
         $exercise->setDescription($data['description'] ?? '');
         
-        // Gestion des Enums
         try {
             if (isset($data['category'])) {
                 $exercise->setCategory(Category::from($data['category']));
@@ -88,6 +132,13 @@ final class ExerciseController extends AbstractController
                 $exercise->setLevel(Level::from($data['level']));
             }
         } catch (\ValueError $e) {
+            if ($illustrationFilename) {
+                $this->mediaUploader->deleteIllustration($illustrationFilename);
+            }
+            if ($videoFilename) {
+                $this->mediaUploader->deleteVideo($videoFilename);
+            }
+            
             return $this->json([
                 'status' => false,
                 'message' => 'Invalid category or level value',
@@ -95,11 +146,18 @@ final class ExerciseController extends AbstractController
             ], 400);
         }
         
-        $exercise->setIllustration($data['illustration'] ?? null);
-        $exercise->setVideo($data['video'] ?? null);
+        $exercise->setIllustration($illustrationFilename);
+        $exercise->setVideo($videoFilename);
+        $exercise->setUser($user);
 
         $errorResponse = $this->validationService->getErrorResponse($exercise);
         if ($errorResponse) {
+            if ($illustrationFilename) {
+                $this->mediaUploader->deleteIllustration($illustrationFilename);
+            }
+            if ($videoFilename) {
+                $this->mediaUploader->deleteVideo($videoFilename);
+            }
             return $errorResponse;
         }
 
@@ -108,7 +166,11 @@ final class ExerciseController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $exercise,
+            'data' => [
+                'exercise' => $exercise,
+                'illustrationUrl' => $illustrationFilename ? '/uploads/illustrations/' . $illustrationFilename : null,
+                'videoUrl' => $videoFilename ? '/uploads/videos/' . $videoFilename : null
+            ],
             'message' => 'Exercise created successfully'
         ], 201);
     }
@@ -134,6 +196,13 @@ final class ExerciseController extends AbstractController
             ], 404);
         }
 
+        if ($exercise->getUser() !== $user) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Access denied'
+            ], 403);
+        }
+
         return $this->json([
             'status' => true,
             'data' => $exercise,
@@ -141,7 +210,7 @@ final class ExerciseController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'exercise_update', methods: ['PUT'])]
+    #[Route('/update/{id}', name: 'exercise_update', methods: ['POST'])]
     public function update(int $id, Request $request): JsonResponse
     {
         $user = $this->getUser();
@@ -162,19 +231,70 @@ final class ExerciseController extends AbstractController
             ], 404);
         }
 
-        $data = json_decode($request->getContent(), true);
-
-        if (!$data) {
+        if ($exercise->getUser() !== $user) {
             return $this->json([
                 'status' => false,
-                'message' => 'Invalid JSON data'
-            ], 400);
+                'message' => 'Access denied'
+            ], 403);
         }
 
-        $exercise->setName($data['name'] ?? $exercise->getName());
-        $exercise->setDescription($data['description'] ?? $exercise->getDescription());
+        $illustrationFile = $request->files->get('illustration');
+        $videoFile = $request->files->get('video');
+
+        $contentType = $request->headers->get('Content-Type');
         
-        // Gestion des Enums
+        if (str_contains($contentType, 'multipart/form-data')) {
+            $data = $request->request->all();
+        } else {
+            $data = json_decode($request->getContent(), true) ?? [];
+        }
+
+        if ($illustrationFile) {
+            $result = $this->mediaUploader->uploadIllustration($illustrationFile);
+            
+            if (!$result['success']) {
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+
+            $oldIllustration = $exercise->getIllustration();
+            if ($oldIllustration) {
+                $this->mediaUploader->deleteIllustration($oldIllustration);
+            }
+            
+            $exercise->setIllustration($result['filename']);
+        }
+
+        if ($videoFile) {
+            $result = $this->mediaUploader->uploadExerciseVideo($videoFile);
+            
+            if (!$result['success']) {
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+
+            $oldVideo = $exercise->getVideo();
+            if ($oldVideo) {
+                $this->mediaUploader->deleteVideo($oldVideo);
+            }
+            
+            $exercise->setVideo($result['filename']);
+        }
+
+        if (isset($data['name'])) {
+            $exercise->setName($data['name']);
+        }
+        
+        if (isset($data['description'])) {
+            $exercise->setDescription($data['description']);
+        }
+        
         try {
             if (isset($data['category'])) {
                 $exercise->setCategory(Category::from($data['category']));
@@ -189,9 +309,6 @@ final class ExerciseController extends AbstractController
                 'error' => $e->getMessage()
             ], 400);
         }
-        
-        $exercise->setIllustration($data['illustration'] ?? $exercise->getIllustration());
-        $exercise->setVideo($data['video'] ?? $exercise->getVideo());
 
         $errorResponse = $this->validationService->getErrorResponse($exercise);
         if ($errorResponse) {
@@ -202,7 +319,11 @@ final class ExerciseController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $exercise,
+            'data' => [
+                'exercise' => $exercise,
+                'illustrationUrl' => $exercise->getIllustration() ? '/uploads/illustrations/' . $exercise->getIllustration() : null,
+                'videoUrl' => $exercise->getVideo() ? '/uploads/videos/' . $exercise->getVideo() : null
+            ],
             'message' => 'Exercise updated successfully'
         ]);
     }
@@ -226,6 +347,21 @@ final class ExerciseController extends AbstractController
                 'status' => false,
                 'message' => 'Exercise not found'
             ], 404);
+        }
+
+        if ($exercise->getUser() !== $user) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Access denied'
+            ], 403);
+        }
+
+        if ($exercise->getIllustration()) {
+            $this->mediaUploader->deleteIllustration($exercise->getIllustration());
+        }
+
+        if ($exercise->getVideo()) {
+            $this->mediaUploader->deleteVideo($exercise->getVideo());
         }
 
         $this->em->remove($exercise);

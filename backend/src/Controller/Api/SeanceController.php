@@ -51,7 +51,7 @@ final class SeanceController extends AbstractController
         ]);
     }
 
-    #[Route('/', name: 'seance_create', methods: ['POST'])]
+    #[Route('/new', name: 'seance_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $user = $this->getUser();
