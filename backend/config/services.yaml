@@ -27,10 +27,6 @@ services:
         arguments:
             $avatarsDirectory: '%avatars_directory%'
     
-    App\Command\CleanOrphanedAvatarsCommand:
-        arguments:
-            $avatarsDirectory: '%avatars_directory%'
-    
     App\EventSubscriber\ExceptionSubscriber:
         arguments:
             $environment: '%kernel.environment%'
