@@ -65,13 +65,6 @@ class CoachClient
         return $this->startedAt;
     }
 
-    public function setStartedAt(\DateTimeImmutable $startedAt): static
-    {
-        $this->startedAt = $startedAt;
-
-        return $this;
-    }
-
     public function getEndedAt(): ?\DateTimeImmutable
     {
         return $this->endedAt;
