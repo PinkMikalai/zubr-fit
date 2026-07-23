@@ -73,9 +73,23 @@ final class SeanceController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['name']) || empty($data['name'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le nom est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['duration']) || !is_numeric($data['duration'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'La durée est obligatoire et doit être un nombre'
+            ], 400);
+        }
+
         $seance = new Seance();
-        $seance->setName($data['name'] ?? '');
-        $seance->setDuration($data['duration'] ?? 0);
+        $seance->setName($data['name']);
+        $seance->setDuration((int)$data['duration']);
         $seance->setComment($data['comment'] ?? null);
         $seance->addUser($user);
 

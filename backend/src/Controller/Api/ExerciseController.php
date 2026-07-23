@@ -86,6 +86,34 @@ final class ExerciseController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['name']) || empty($data['name'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le nom est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['description']) || empty($data['description'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'La description est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['category']) || empty($data['category'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'La catégorie est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['level']) || empty($data['level'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le niveau est obligatoire'
+            ], 400);
+        }
+
         $illustrationFilename = null;
         if ($illustrationFile) {
             $result = $this->mediaUploader->uploadIllustration($illustrationFile);
@@ -121,16 +149,12 @@ final class ExerciseController extends AbstractController
         }
 
         $exercise = new Exercise();
-        $exercise->setName($data['name'] ?? '');
-        $exercise->setDescription($data['description'] ?? '');
+        $exercise->setName($data['name']);
+        $exercise->setDescription($data['description']);
         
         try {
-            if (isset($data['category'])) {
-                $exercise->setCategory(Category::from($data['category']));
-            }
-            if (isset($data['level'])) {
-                $exercise->setLevel(Level::from($data['level']));
-            }
+            $exercise->setCategory(Category::from($data['category']));
+            $exercise->setLevel(Level::from($data['level']));
         } catch (\ValueError $e) {
             if ($illustrationFilename) {
                 $this->mediaUploader->deleteIllustration($illustrationFilename);
