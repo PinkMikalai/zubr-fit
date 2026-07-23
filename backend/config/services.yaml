@@ -9,6 +9,7 @@
 parameters:
     avatars_directory: '%kernel.project_dir%/public/uploads/avatars'
     illustrations_directory: '%kernel.project_dir%/public/uploads/illustrations'
+    videos_directory: '%kernel.project_dir%/public/uploads/videos'
 
 services:
     # default configuration for services in *this* file
@@ -28,6 +29,7 @@ services:
         arguments:
             $avatarsDirectory: '%avatars_directory%'
             $illustrationsDirectory: '%illustrations_directory%'
+            $videosDirectory: '%videos_directory%'
     
     App\EventSubscriber\ExceptionSubscriber:
         arguments:
