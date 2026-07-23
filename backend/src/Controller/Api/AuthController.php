@@ -30,8 +30,8 @@ class AuthController extends AbstractController
     {
         $avatarFile = $request->files->get('avatar') ?? $request->files->get('Avatar');
         
-        $contentType = $request->headers->get('Content-Type');
-        
+        $contentType = $request->headers->get('Content-Type') ?? '';
+
         if (str_contains($contentType, 'multipart/form-data')) {
             $data = $request->request->all();
         } else {
@@ -204,26 +204,6 @@ class AuthController extends AbstractController
         ], 200);
     }
 
-    #[Route('/me', name: 'me', methods: ['GET'])]
-    public function me(): JsonResponse
-    {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-
-        return $this->json([
-            'status' => true,
-            'message' => 'User information',
-            'data' => [
-                'user' => $user,
-            ],
-        ], 200);
-    }
 
     #[Route('/logout', name: 'logout', methods: ['POST'])]
     public function logout(): JsonResponse
