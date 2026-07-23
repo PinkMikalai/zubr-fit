@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Seance;
+use App\Entity\SeanceUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,8 +21,8 @@ class SeanceRepository extends ServiceEntityRepository
     public function findAllByUserDESC(User $user): array
     {
         return $this->createQueryBuilder('s')
-            ->innerJoin('s.users', 'u')
-            ->where('u.id = :userId')
+            ->innerJoin(SeanceUser::class, 'su', 'WITH', 'su.seance = s.id')
+            ->where('su.user = :userId')
             ->setParameter('userId', $user->getId())
             ->orderBy('s.name', 'DESC')
             ->getQuery()

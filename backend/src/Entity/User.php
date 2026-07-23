@@ -37,6 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = ['ROLE_USER'];
 
     #[ORM\Column]
+    #[Ignore]
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
@@ -73,15 +74,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     * @var Collection<int, Seance>
+     * @var Collection<int, Exercise>
      */
-    #[ORM\ManyToMany(targetEntity: Seance::class, inversedBy: 'users')]
+    #[ORM\OneToMany(targetEntity: Exercise::class, mappedBy: 'user')]
     #[Ignore]
-    private Collection $Seance;
+    private Collection $exercises;
 
     public function __construct()
     {
-        $this->Seance = new ArrayCollection();
+        $this->exercises = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -219,27 +220,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Seance>
+     * @return Collection<int, Exercise>
      */
-    public function getSeance(): Collection
+    public function getExercises(): Collection
     {
-        return $this->Seance;
-    }
-
-    public function addSeance(Seance $seance): static
-    {
-        if (!$this->Seance->contains($seance)) {
-            $this->Seance->add($seance);
-        }
-
-        return $this;
-    }
-
-    public function removeSeance(Seance $seance): static
-    {
-        $this->Seance->removeElement($seance);
-
-        return $this;
+        return $this->exercises;
     }
 
     #[ORM\PrePersist]
