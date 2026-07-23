@@ -46,6 +46,34 @@ class AuthController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['email']) || empty($data['email'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'L\'email est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['firstname']) || empty($data['firstname'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le prénom est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['lastname']) || empty($data['lastname'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le nom est obligatoire'
+            ], 400);
+        }
+
+        if (!isset($data['password']) || empty($data['password'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le mot de passe est obligatoire'
+            ], 400);
+        }
+
         $avatarFilename = null;
         if ($avatarFile) {
             $result = $this->mediaUploader->uploadAvatar($avatarFile);
@@ -62,9 +90,9 @@ class AuthController extends AbstractController
         }
 
         $user = new User();
-        $user->setEmail($data['email'] ?? '');
-        $user->setFirstname($data['firstname'] ?? '');
-        $user->setLastname($data['lastname'] ?? '');
+        $user->setEmail($data['email']);
+        $user->setFirstname($data['firstname']);
+        $user->setLastname($data['lastname']);
         $user->setPhoneNumber($data['phoneNumber'] ?? null);
         $user->setAvatar($avatarFilename);
 
@@ -97,13 +125,11 @@ class AuthController extends AbstractController
 
         $user->setRoles([$allowedRoles[$data['role']]]);
 
-        if (isset($data['password'])) {
-            $hashedPassword = $this->passwordHasher->hashPassword(
-                $user,
-                $data['password']
-            );
-            $user->setPassword($hashedPassword);
-        }
+        $hashedPassword = $this->passwordHasher->hashPassword(
+            $user,
+            $data['password']
+        );
+        $user->setPassword($hashedPassword);
 
         $errorResponse = $this->validationService->getErrorResponse($user);
         if ($errorResponse) {

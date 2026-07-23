@@ -11,7 +11,6 @@ class MediaUploader
 {
     private const MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
     private const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-    private const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
 
     private const ALLOWED_IMAGE_MIME_TYPES = [
         'image/jpeg',
@@ -19,13 +18,6 @@ class MediaUploader
         'image/gif',
         'image/webp',
         'image/svg+xml'
-    ];
-
-    private const ALLOWED_VIDEO_MIME_TYPES = [
-        'video/mp4',
-        'video/mpeg',
-        'video/quicktime',
-        'video/x-msvideo'
     ];
 
     private const ERROR_CODES = [
@@ -40,8 +32,7 @@ class MediaUploader
         private string $avatarsDirectory,
         private SluggerInterface $slugger,
         private MimeTypesInterface $mimeTypes,
-        private ?string $illustrationsDirectory = null,
-        private ?string $videosDirectory = null
+        private ?string $illustrationsDirectory = null
     ) {
     }
 
@@ -87,33 +78,6 @@ class MediaUploader
         );
     }
 
-    /**
-     * Upload une vidéo
-     */
-    public function uploadVideo(UploadedFile $file, string $directory, string $urlPrefix = '/uploads/'): array
-    {
-        return $this->uploadFile(
-            file: $file,
-            directory: $directory,
-            maxSize: self::MAX_VIDEO_SIZE,
-            allowedMimeTypes: self::ALLOWED_VIDEO_MIME_TYPES,
-            urlPrefix: $urlPrefix
-        );
-    }
-
-    /**
-     * Upload une vidéo d'exercice (alias pour uploadVideo avec répertoire par défaut)
-     */
-    public function uploadExerciseVideo(UploadedFile $file): array
-    {
-        return $this->uploadFile(
-            file: $file,
-            directory: $this->videosDirectory,
-            maxSize: self::MAX_VIDEO_SIZE,
-            allowedMimeTypes: self::ALLOWED_VIDEO_MIME_TYPES,
-            urlPrefix: '/uploads/videos/'
-        );
-    }
 
     /**
      * Méthode générique d'upload de fichier
@@ -167,18 +131,55 @@ class MediaUploader
      */
     private function validateFile(UploadedFile $file, int $maxSize, array $allowedMimeTypes): array
     {
-        if ($file->getSize() > $maxSize) {
+        // Vérifier si le fichier est valide (pas d'erreur d'upload)
+        if (!$file->isValid()) {
+            return [
+                'valid' => false,
+                'error' => 'Erreur lors de l\'upload: ' . $file->getErrorMessage(),
+                'code' => self::ERROR_CODES['UPLOAD_FAILED']
+            ];
+        }
+
+        // Vérifier que le fichier a un chemin temporaire valide
+        $filePath = $file->getPathname();
+        if (empty($filePath) || !file_exists($filePath)) {
+            return [
+                'valid' => false,
+                'error' => 'Le fichier est vide ou inexistant. Vérifiez les limites d\'upload PHP (upload_max_filesize, post_max_size).',
+                'code' => self::ERROR_CODES['UPLOAD_FAILED']
+            ];
+        }
+
+        $fileSize = $file->getSize();
+        if (!$fileSize || $fileSize === false) {
+            return [
+                'valid' => false,
+                'error' => 'Impossible de lire la taille du fichier. Le fichier est peut-être trop volumineux.',
+                'code' => self::ERROR_CODES['FILE_TOO_LARGE']
+            ];
+        }
+
+        if ($fileSize > $maxSize) {
             return [
                 'valid' => false,
                 'error' => sprintf(
-                    'Fichier trop volumineux. Taille maximale: %s MB',
+                    'Fichier trop volumineux (%s MB). Maximum: %s MB',
+                    round($fileSize / 1024 / 1024, 1),
                     round($maxSize / 1024 / 1024, 1)
                 ),
                 'code' => self::ERROR_CODES['FILE_TOO_LARGE']
             ];
         }
 
-        $mimeType = $file->getMimeType();
+        try {
+            $mimeType = $file->getMimeType();
+        } catch (\Exception $e) {
+            return [
+                'valid' => false,
+                'error' => 'Impossible de déterminer le type de fichier: ' . $e->getMessage(),
+                'code' => self::ERROR_CODES['INVALID_FILE_TYPE']
+            ];
+        }
         if (!in_array($mimeType, $allowedMimeTypes, true)) {
             return [
                 'valid' => false,
@@ -298,14 +299,6 @@ class MediaUploader
     public function deleteIllustration(?string $filename): bool
     {
         return $this->deleteFile($this->illustrationsDirectory, $filename);
-    }
-
-    /**
-     * Supprime une vidéo
-     */
-    public function deleteVideo(?string $filename): bool
-    {
-        return $this->deleteFile($this->videosDirectory, $filename);
     }
 
     /**
