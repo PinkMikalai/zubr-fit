@@ -69,8 +69,8 @@ final class ExerciseController extends AbstractController
 
         $illustrationFile = $request->files->get('illustration');
 
-        $contentType = $request->headers->get('Content-Type');
-        
+        $contentType = $request->headers->get('Content-Type') ?? '';
+
         if (str_contains($contentType, 'multipart/form-data')) {
             $data = $request->request->all();
         } else {
@@ -237,8 +237,8 @@ final class ExerciseController extends AbstractController
 
         $illustrationFile = $request->files->get('illustration');
 
-        $contentType = $request->headers->get('Content-Type');
-        
+        $contentType = $request->headers->get('Content-Type') ?? '';
+
         if (str_contains($contentType, 'multipart/form-data')) {
             $data = $request->request->all();
         } else {

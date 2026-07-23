@@ -23,7 +23,7 @@ final class UserController extends AbstractController
     ) {
     }
 
-    #[Route('/profile', name: 'show', methods: ['GET'])]
+    #[Route('', name: 'profile_index', methods: ['GET'])]
     public function show(): JsonResponse
     {
         $user = $this->getUser();
@@ -53,6 +53,36 @@ final class UserController extends AbstractController
         ]);
     }
 
+    //voir le profil d'un utilisateur
+    #[Route('/{id}', name: 'profile_show', methods: ['GET'])]
+    public function showUser(int $id): JsonResponse
+    {
+        $user = $this->em->getRepository(User::class)->find($id);
+        if (!$user) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Utilisateur non trouvé'
+            ], 404);
+        }
+        return $this->json([
+            'status' => true,
+            'data' => [
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'firstname' => $user->getFirstname(),
+                'lastname' => $user->getLastname(),
+                'phoneNumber' => $user->getPhoneNumber(),
+                'avatar' => $user->getAvatar(),
+                'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null,
+                'roles' => $user->getRoles(),
+                'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
+                'updatedAt' => $user->getUpdatedAt()?->format('Y-m-d H:i:s')
+            ],
+            'message' => 'Profil récupéré avec succès'
+        ]);
+    }
+
+    //mettre à jour le profil d'un utilisateur
     #[Route('/update', name: 'update', methods: ['POST'])]
     public function update(Request $request): JsonResponse
     {
@@ -87,8 +117,8 @@ final class UserController extends AbstractController
             $user->setAvatar($result['filename']);
         }
 
-        $contentType = $request->headers->get('Content-Type');
-        
+        $contentType = $request->headers->get('Content-Type') ?? '';
+
         if (str_contains($contentType, 'multipart/form-data')) {
             $data = $request->request->all();
         } else {
