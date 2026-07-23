@@ -3,8 +3,10 @@
 namespace App\Controller\Api;
 
 use App\Entity\Seance;
+use App\Entity\SeanceUser;
 use App\Entity\User;
 use App\Repository\SeanceRepository;
+use App\Repository\SeanceUserRepository;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +20,8 @@ final class SeanceController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         private ValidationService $validationService,
-        private SeanceRepository $seanceRepository
+        private SeanceRepository $seanceRepository,
+        private SeanceUserRepository $seanceUserRepository
     ) {
     }
 
@@ -91,14 +94,18 @@ final class SeanceController extends AbstractController
         $seance->setName($data['name']);
         $seance->setDuration((int)$data['duration']);
         $seance->setComment($data['comment'] ?? null);
-        $seance->addUser($user);
 
         $errorResponse = $this->validationService->getErrorResponse($seance);
         if ($errorResponse) {
             return $errorResponse;
         }
 
+        $seanceUser = new SeanceUser();
+        $seanceUser->setSeance($seance);
+        $seanceUser->setUser($user);
+
         $this->em->persist($seance);
+        $this->em->persist($seanceUser);
         $this->em->flush();
 
         return $this->json([
@@ -129,7 +136,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$seance->getUsers()->contains($user)) {
+        if (!$this->isLinked($seance, $user)) {
             return $this->json([
                 'status' => false,
                 'message' => 'Access denied'
@@ -164,7 +171,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$seance->getUsers()->contains($user)) {
+        if (!$this->isLinked($seance, $user)) {
             return $this->json([
                 'status' => false,
                 'message' => 'Access denied'
@@ -219,7 +226,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$seance->getUsers()->contains($user)) {
+        if (!$this->isLinked($seance, $user)) {
             return $this->json([
                 'status' => false,
                 'message' => 'Access denied'
@@ -256,7 +263,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$seance->getUsers()->contains($user)) {
+        if (!$this->isLinked($seance, $user)) {
             return $this->json([
                 'status' => false,
                 'message' => 'Access denied'
@@ -271,5 +278,171 @@ final class SeanceController extends AbstractController
             'data' => $seance,
             'message' => 'Seance marked as completed'
         ]);
+    }
+
+    #[Route('/{id}/assign', name: 'seance_assign', methods: ['POST'])]
+    public function assign(int $id, Request $request): JsonResponse
+    {
+        $coach = $this->getUser();
+
+        if (!$coach instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Only coaches can assign seances'
+            ], 403);
+        }
+
+        $seance = $this->em->getRepository(Seance::class)->find($id);
+
+        if (!$seance) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Seance not found'
+            ], 404);
+        }
+
+        if (!$this->isLinked($seance, $coach)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'You can only assign your own seances'
+            ], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $userIds = $this->extractUserIds($data);
+
+        if (empty($userIds)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'user_id or user_ids is required'
+            ], 400);
+        }
+
+        $users = $this->em->getRepository(User::class)->findBy(['id' => $userIds]);
+
+        if (count($users) !== count($userIds)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'One or more users not found'
+            ], 404);
+        }
+
+        foreach ($users as $user) {
+            if ($this->isLinked($seance, $user)) {
+                continue;
+            }
+
+            $seanceUser = new SeanceUser();
+            $seanceUser->setSeance($seance);
+            $seanceUser->setUser($user);
+            $this->em->persist($seanceUser);
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'status' => true,
+            'data' => $seance,
+            'message' => 'Seance assigned successfully'
+        ]);
+    }
+
+    #[Route('/{id}/assign', name: 'seance_unassign', methods: ['DELETE'])]
+    public function unassign(int $id, Request $request): JsonResponse
+    {
+        $coach = $this->getUser();
+
+        if (!$coach instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Only coaches can unassign seances'
+            ], 403);
+        }
+
+        $seance = $this->em->getRepository(Seance::class)->find($id);
+
+        if (!$seance) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Seance not found'
+            ], 404);
+        }
+
+        if (!$this->isLinked($seance, $coach)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'You can only unassign your own seances'
+            ], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $userIds = $this->extractUserIds($data);
+
+        if (empty($userIds)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'user_id or user_ids is required'
+            ], 400);
+        }
+
+        $users = $this->em->getRepository(User::class)->findBy(['id' => $userIds]);
+
+        foreach ($users as $user) {
+            $seanceUser = $this->seanceUserRepository->findOneBy(['seance' => $seance, 'user' => $user]);
+
+            if ($seanceUser) {
+                $this->em->remove($seanceUser);
+            }
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'status' => true,
+            'data' => $seance,
+            'message' => 'Seance unassigned successfully'
+        ]);
+    }
+
+    /**
+     * Vérifie si un utilisateur est lié à une séance (créateur ou assigné).
+     */
+    private function isLinked(Seance $seance, User $user): bool
+    {
+        return $this->seanceUserRepository->count(['seance' => $seance, 'user' => $user]) > 0;
+    }
+
+    /**
+     * Extrait une liste d'IDs utilisateur à partir de user_id (un seul) ou user_ids (plusieurs).
+     */
+    private function extractUserIds(?array $data): array
+    {
+        if (!$data) {
+            return [];
+        }
+
+        if (!empty($data['user_ids']) && is_array($data['user_ids'])) {
+            return array_values(array_unique(array_map('intval', $data['user_ids'])));
+        }
+
+        if (!empty($data['user_id'])) {
+            return [(int) $data['user_id']];
+        }
+
+        return [];
     }
 }

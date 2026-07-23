@@ -68,7 +68,6 @@ final class ExerciseController extends AbstractController
         }
 
         $illustrationFile = $request->files->get('illustration');
-        $videoFile = $request->files->get('video');
 
         $contentType = $request->headers->get('Content-Type');
         
@@ -129,25 +128,6 @@ final class ExerciseController extends AbstractController
             $illustrationFilename = $result['filename'];
         }
 
-        $videoFilename = null;
-        if ($videoFile) {
-            $result = $this->mediaUploader->uploadExerciseVideo($videoFile);
-            
-            if (!$result['success']) {
-                if ($illustrationFilename) {
-                    $this->mediaUploader->deleteIllustration($illustrationFilename);
-                }
-                
-                return $this->json([
-                    'status' => false,
-                    'message' => $result['error'],
-                    'code' => $result['code']
-                ], 400);
-            }
-            
-            $videoFilename = $result['filename'];
-        }
-
         $exercise = new Exercise();
         $exercise->setName($data['name']);
         $exercise->setDescription($data['description']);
@@ -159,9 +139,6 @@ final class ExerciseController extends AbstractController
             if ($illustrationFilename) {
                 $this->mediaUploader->deleteIllustration($illustrationFilename);
             }
-            if ($videoFilename) {
-                $this->mediaUploader->deleteVideo($videoFilename);
-            }
             
             return $this->json([
                 'status' => false,
@@ -171,16 +148,13 @@ final class ExerciseController extends AbstractController
         }
         
         $exercise->setIllustration($illustrationFilename);
-        $exercise->setVideo($videoFilename);
+        $exercise->setVideo(null);
         $exercise->setUser($user);
 
         $errorResponse = $this->validationService->getErrorResponse($exercise);
         if ($errorResponse) {
             if ($illustrationFilename) {
                 $this->mediaUploader->deleteIllustration($illustrationFilename);
-            }
-            if ($videoFilename) {
-                $this->mediaUploader->deleteVideo($videoFilename);
             }
             return $errorResponse;
         }
@@ -192,8 +166,7 @@ final class ExerciseController extends AbstractController
             'status' => true,
             'data' => [
                 'exercise' => $exercise,
-                'illustrationUrl' => $illustrationFilename ? '/uploads/illustrations/' . $illustrationFilename : null,
-                'videoUrl' => $videoFilename ? '/uploads/videos/' . $videoFilename : null
+                'illustrationUrl' => $illustrationFilename ? '/uploads/illustrations/' . $illustrationFilename : null
             ],
             'message' => 'Exercise created successfully'
         ], 201);
@@ -263,7 +236,6 @@ final class ExerciseController extends AbstractController
         }
 
         $illustrationFile = $request->files->get('illustration');
-        $videoFile = $request->files->get('video');
 
         $contentType = $request->headers->get('Content-Type');
         
@@ -290,25 +262,6 @@ final class ExerciseController extends AbstractController
             }
             
             $exercise->setIllustration($result['filename']);
-        }
-
-        if ($videoFile) {
-            $result = $this->mediaUploader->uploadExerciseVideo($videoFile);
-            
-            if (!$result['success']) {
-                return $this->json([
-                    'status' => false,
-                    'message' => $result['error'],
-                    'code' => $result['code']
-                ], 400);
-            }
-
-            $oldVideo = $exercise->getVideo();
-            if ($oldVideo) {
-                $this->mediaUploader->deleteVideo($oldVideo);
-            }
-            
-            $exercise->setVideo($result['filename']);
         }
 
         if (isset($data['name'])) {
@@ -345,8 +298,7 @@ final class ExerciseController extends AbstractController
             'status' => true,
             'data' => [
                 'exercise' => $exercise,
-                'illustrationUrl' => $exercise->getIllustration() ? '/uploads/illustrations/' . $exercise->getIllustration() : null,
-                'videoUrl' => $exercise->getVideo() ? '/uploads/videos/' . $exercise->getVideo() : null
+                'illustrationUrl' => $exercise->getIllustration() ? '/uploads/illustrations/' . $exercise->getIllustration() : null
             ],
             'message' => 'Exercise updated successfully'
         ]);
@@ -382,10 +334,6 @@ final class ExerciseController extends AbstractController
 
         if ($exercise->getIllustration()) {
             $this->mediaUploader->deleteIllustration($exercise->getIllustration());
-        }
-
-        if ($exercise->getVideo()) {
-            $this->mediaUploader->deleteVideo($exercise->getVideo());
         }
 
         $this->em->remove($exercise);
