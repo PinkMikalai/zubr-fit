@@ -29,6 +29,9 @@ class MediaUploader
         'video/3gpp'
     ];
 
+    // Taille de la fenêtre scannée à la recherche de code caché (voir isSuspiciousFile)
+    private const SUSPICIOUS_SCAN_WINDOW = 65536; // 64KB
+
     private const ERROR_CODES = [
         'FILE_TOO_LARGE' => 'FILE_TOO_LARGE',
         'INVALID_FILE_TYPE' => 'INVALID_FILE_TYPE',
@@ -315,16 +318,26 @@ class MediaUploader
     {
         $filename = $file->getClientOriginalName();
 
-        $dangerousExtensions = ['php', 'phtml', 'php3', 'php4', 'php5', 'exe', 'sh', 'bat', 'js'];
+        $dangerousExtensions = [
+            'php', 'phtml', 'php3', 'php4', 'php5', 'php7', 'php8', 'pht', 'phar',
+            'exe', 'sh', 'bat', 'cgi', 'pl', 'asp', 'aspx', 'jsp', 'js'
+        ];
         $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
         if (in_array($extension, $dangerousExtensions, true)) {
             return true;
         }
 
-        $content = file_get_contents($file->getPathname(), false, null, 0, 1024);
-        if (str_contains($content, '<?php') || str_contains($content, '<script')) {
-            return true;
+        // Fenêtre plus large que les 1024 premiers octets : une vraie image/vidéo
+        // commence par des données binaires, du code caché peut être plus loin dans le fichier.
+        $content = file_get_contents($file->getPathname(), false, null, 0, self::SUSPICIOUS_SCAN_WINDOW);
+        $lowerContent = strtolower($content);
+
+        $suspiciousPatterns = ['<?php', '<?=', '<script'];
+        foreach ($suspiciousPatterns as $pattern) {
+            if (str_contains($lowerContent, $pattern)) {
+                return true;
+            }
         }
 
         return false;
