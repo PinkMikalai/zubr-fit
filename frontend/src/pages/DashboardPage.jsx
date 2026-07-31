@@ -1,22 +1,27 @@
 import { useAuth } from '../hooks/useAuth';
+import CoachDashboard from '../components/dashboard/CoachDashboard';
+import ClientDashboard from '../components/dashboard/ClientDashboard';
 
 const DashboardPage = () => {
-  const { user, logout } = useAuth();
+  const { user, loading } = useAuth();
 
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      
-      {user && (
-        <div>
-          <h2>Bienvenue, {user.firstname} {user.lastname} !</h2>
-          <p>Email: {user.email}</p>
-        </div>
-      )}
+  if (loading) {
+    return <p>Chargement...</p>;
+  }
 
-      <button onClick={logout}>Se déconnecter</button>
-    </div>
-  );
+  if (!user) {
+    return null;
+  }
+
+  let isCoach = false;
+  if (user.roles && user.roles.includes('ROLE_COACH')) {
+    isCoach = true;
+  }
+
+  if (isCoach) {
+    return <CoachDashboard user={user} />;
+  }
+  return <ClientDashboard user={user} />;
 };
 
 export default DashboardPage;

@@ -1,0 +1,10 @@
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.seance-card h3 {
+  margin-bottom: var(--space-xs);
+}
+
+.seance-card p {
+  color: var(--color-text-light);
+  font-size: 14px;
+  margin-bottom: 0;
+}

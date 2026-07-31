@@ -1,0 +1,154 @@
+/*
+  Styles partagés par TOUS les formulaires de l'app (connexion, inscription, exercices, et ceux à venir).
+  Comme tous les formulaires utilisent les mêmes balises (label, input, select, textarea),
+  un seul fichier suffit pour les styler tous de façon cohérente.
+*/
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 420px;
+}
+
+form > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+input,
+select,
+textarea {
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-background);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Message d'erreur affiché sous un champ, ou pour toute l'API (voir errorMessages.js) */
+.form-error {
+  color: var(--color-error);
+  background: var(--color-error-background);
+  padding: var(--space-sm);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+/* Message de succès, même usage que .form-error mais en vert */
+.form-success {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-background));
+  padding: var(--space-sm);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
+/* Champ avec une icône à gauche (email, cadenas, personne, téléphone...) */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: var(--space-sm);
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding-left: calc(var(--space-sm) * 2 + 18px);
+}
+
+/* Choix du rôle (Coach / Client) sous forme de deux boutons côte à côte */
+.role-toggle {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.role-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-md) var(--space-sm);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.role-button img {
+  width: 22px;
+  height: 22px;
+}
+
+.role-button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-background);
+}
+
+.role-button-active {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-background));
+}
+
+/* Bouton rond pour ajouter une photo de profil */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.avatar-upload-button {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatar-upload-button img {
+  width: 26px;
+  height: 26px;
+}
+
+.avatar-upload-button .avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-upload p {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-bottom: 0;
+}

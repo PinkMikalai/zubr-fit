@@ -1,0 +1,193 @@
+/*
+  Styles globaux qui s'appliquent partout dans l'app : titres, boutons, mise en page générale.
+*/
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* .app-shell empile MobileHeader / .app-body / BottomNav verticalement */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+/* .app-body place la Sidebar et le contenu côte à côte (en ligne) */
+.app-body {
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+
+.app-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* évite qu'un contenu trop large ne déborde de la colonne */
+}
+
+h1 {
+  font-size: 32px;
+  color: var(--color-heading);
+  margin-bottom: var(--space-md);
+}
+
+h2 {
+  font-size: 22px;
+  color: var(--color-heading);
+  margin-bottom: var(--space-sm);
+}
+
+h3 {
+  font-size: 18px;
+  color: var(--color-heading);
+  margin-bottom: var(--space-xs);
+}
+
+p {
+  line-height: 1.5;
+  margin-bottom: var(--space-sm);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
+}
+
+button:hover {
+  background: var(--color-primary-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/*
+  Classes utilitaires partagées par toute l'app, pour ne pas répéter les mêmes règles
+  (fond, ombre, coins arrondis...) dans chaque fichier CSS de composant.
+*/
+
+/* Une "card" : le bloc de base utilisé pour les exercices, séances, clients... */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+}
+
+/* Petite étiquette arrondie (catégorie, niveau, statut...) */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Bouton rond avec une icône dedans (ajouter, fermer...) */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* Note : une icône chargée via <img> ne peut pas changer de couleur en CSS,
+   donc au survol on assombrit juste le fond au lieu d'inverser les couleurs */
+.icon-button:hover {
+  background: color-mix(in srgb, var(--color-primary) 25%, var(--color-primary-light));
+}
+
+.icon-button img {
+  width: 18px;
+  height: 18px;
+}
+
+/* Sous-titre gris affiché sous un h1, sur les pages qui en ont besoin (dashboard, création de séance...) */
+.page-subtitle {
+  color: var(--color-text-light);
+  margin-top: calc(var(--space-md) * -1);
+}
+
+/* Bouton qui ressemble à un simple lien texte (pas de fond, pas de bordure) */
+.link-button {
+  background: none;
+  color: var(--color-primary);
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.link-button:hover {
+  background: none;
+  text-decoration: underline;
+}
+
+/* Bouton (ou lien) secondaire : contour discret au lieu du fond indigo plein du bouton par défaut */
+.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+}
+
+.button-secondary:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.button-secondary img {
+  width: 14px;
+  height: 14px;
+}
+
+/* Petite icône affichée avant le texte d'un titre de section (h2) */
+.section-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: var(--space-xs);
+  vertical-align: -3px;
+}
+
+/* Photo de profil ronde, utilisée pour les avatars un peu partout (nav, clients...) */
+.avatar-circle {
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+/* Contenu principal de chaque page, avec un peu d'air autour */
+main,
+.page {
+  flex: 1;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-md);
+}

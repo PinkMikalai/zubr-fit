@@ -1,0 +1,232 @@
+.breadcrumb {
+  display: flex;
+  gap: var(--space-xs);
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-bottom: var(--space-sm);
+}
+
+.breadcrumb a {
+  color: var(--color-text-light);
+}
+
+/* Deux colonnes à partir de la largeur desktop, une seule colonne en dessous */
+.seance-create-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 900px) {
+  .seance-create-page form {
+    max-width: none;
+  }
+
+  .seance-create-grid {
+    grid-template-columns: 1fr 1.2fr;
+    align-items: start;
+  }
+}
+
+.seance-create-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.seance-create-section {
+  margin-bottom: 0;
+}
+
+.seance-create-section > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.seance-create-section > div:last-child {
+  margin-bottom: 0;
+}
+
+.seance-create-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.seance-create-section-header h2 {
+  margin-bottom: 0;
+}
+
+/* --- Structure de la séance --- */
+
+.seance-create-lines {
+  list-style: none;
+  margin: 0 0 var(--space-md);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Les vignettes/infos d'une ligne d'exercice viennent des classes partagées .exercise-line*
+   (voir styles/seances/seance-detail-page.css) */
+
+.seance-create-add-exercise {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  background: var(--color-background);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.seance-create-add-exercise:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+}
+
+.seance-create-add-exercise img {
+  width: 24px;
+  height: 24px;
+}
+
+.seance-create-add-exercise-hint {
+  color: var(--color-text-light);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.seance-create-line-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.seance-create-line-picker select {
+  flex: 1;
+  min-width: 160px;
+}
+
+.seance-create-line-picker input {
+  width: 90px;
+}
+
+.seance-create-line-picker-actions {
+  display: flex;
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+/* --- Assigner à des clients --- */
+
+.seance-create-clients {
+  list-style: none;
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.seance-create-client-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: none;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-sm);
+  font-weight: 500;
+}
+
+.seance-create-client-row:hover {
+  background: var(--color-primary-light);
+}
+
+.seance-create-client-row img.avatar-circle {
+  width: 32px;
+  height: 32px;
+}
+
+.seance-create-client-row-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.seance-create-client-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--color-border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seance-create-client-checkbox-checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.seance-create-client-checkbox-checked img {
+  width: 10px;
+  height: 10px;
+}
+
+/* --- Récapitulatif --- */
+
+.seance-create-summary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  color: white;
+  margin-top: var(--space-md);
+}
+
+.seance-create-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.seance-create-summary-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.seance-create-summary-label {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-bottom: 0;
+}
+
+.seance-create-submit {
+  width: 100%;
+  background: white;
+  color: var(--color-primary);
+}
+
+.seance-create-submit:hover {
+  background: white;
+  opacity: 0.9;
+}

@@ -1,7 +1,7 @@
 function Footer() {
     return (
-        <footer>
-            <p>Ici mon footer</p>
+        <footer className="app-footer">
+            <p>zubr-fit © 2026</p>
         </footer>
     )
 }

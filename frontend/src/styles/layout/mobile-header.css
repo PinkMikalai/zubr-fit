@@ -1,0 +1,151 @@
+/* Barre du haut, tablette/mobile uniquement. Visible par défaut, cachée dans le media query en bas. */
+.mobile-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-toggle {
+  background: var(--color-primary-light);
+  padding: var(--space-xs);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-toggle img {
+  width: 20px;
+  height: 20px;
+}
+
+/* La règle générale "button:hover" du base.css est plus spécifique qu'une simple classe :
+   sans ce :hover explicite, elle repasserait le bouton en indigo plein au survol/appui */
+.menu-toggle:hover {
+  background: var(--color-primary-light);
+}
+
+.mobile-header-logo {
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+  color: var(--color-heading);
+}
+
+/* Pousse un éventuel contenu futur (icône profil...) à droite de la barre */
+.mobile-header-spacer {
+  flex: 1;
+}
+
+/* Fond sombre derrière le tiroir, couvre tout l'écran, ferme le menu si on clique dessus */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 15, 25, 0.4);
+  z-index: 20;
+  display: flex;
+}
+
+/* Le tiroir lui-même, qui glisse depuis la gauche */
+.drawer-panel {
+  width: 80%;
+  max-width: 300px;
+  height: 100%;
+  background: var(--color-surface);
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  overflow-y: auto;
+  animation: drawer-slide-in 0.2s ease-out;
+}
+
+@keyframes drawer-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawer-profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.drawer-profile-avatar {
+  width: 52px;
+  height: 52px;
+}
+
+.drawer-profile-name {
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0;
+}
+
+.drawer-profile-role {
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.drawer-link img {
+  width: 20px;
+  height: 20px;
+}
+
+.drawer-link:hover {
+  background: var(--color-primary-light);
+}
+
+.drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-error-background);
+  color: var(--color-error);
+  width: 100%;
+}
+
+.drawer-logout:hover {
+  background: var(--color-error-background);
+  opacity: 0.85;
+}
+
+.drawer-logout img {
+  width: 20px;
+  height: 20px;
+}
+
+/* Desktop : à partir de 900px de large, cette barre disparaît (remplacée par la Sidebar) */
+@media (min-width: 900px) {
+  .mobile-header {
+    display: none;
+  }
+}

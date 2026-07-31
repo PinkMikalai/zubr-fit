@@ -1,0 +1,192 @@
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.seance-detail-header {
+  margin-bottom: var(--space-md);
+}
+
+.seance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-top: var(--space-md);
+}
+
+.seance-exercise-list {
+  list-style: none;
+  margin: var(--space-md) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/*
+  Une "ligne d'exercice" (image en haut + nom/séries-répétitions/bouton retirer en bas) :
+  utilisée à la fois ici (séance déjà créée) et dans SeanceCreatePage (séance en cours de création).
+*/
+.exercise-line {
+  padding: 0;
+  overflow: hidden;
+}
+
+.exercise-line-thumbnail {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  background: var(--color-primary-light);
+}
+
+.exercise-line-thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exercise-line-thumbnail-placeholder img {
+  width: 32px;
+  height: 32px;
+}
+
+.exercise-line-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.exercise-line-info,
+.exercise-line-edit {
+  flex: 1;
+  min-width: 0; /* pour qu'un nom d'exercice long ne pousse pas les boutons hors de l'écran */
+}
+
+.exercise-line-info h3,
+.exercise-line-edit h3 {
+  margin-bottom: 0;
+}
+
+/* Catégorie/niveau de l'exercice, en petit texte discret (pas des badges pilule) */
+.exercise-line-tags {
+  color: var(--color-text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--space-xs);
+}
+
+/* Mini grille de statistiques (séries, répétitions) */
+.exercise-line-stats {
+  display: flex;
+  gap: var(--space-lg);
+}
+
+.exercise-line-stats > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.exercise-line-stat-label {
+  font-size: 11px;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+}
+
+.exercise-line-stat-value {
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+/* Flèches pour réordonner un exercice dans la liste (voir SeanceCreatePage) */
+.exercise-line-reorder {
+  display: flex;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md) 0;
+}
+
+.exercise-line-reorder button {
+  background: var(--color-primary-light);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exercise-line-reorder button img {
+  width: 14px;
+  height: 14px;
+}
+
+.exercise-line-reorder button:disabled {
+  opacity: 0.3;
+}
+
+/* À partir d'une largeur tablette/desktop, la carte passe en ligne (vignette à gauche)
+   au lieu d'empiler l'image en haut, plus adapté à un écran large */
+@media (min-width: 700px) {
+  .exercise-line {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .exercise-line-thumbnail {
+    width: 110px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .exercise-line-footer {
+    flex: 1;
+  }
+
+  .exercise-line-reorder {
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 0 0 var(--space-sm);
+  }
+}
+
+.exercise-line-actions {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.exercise-line-edit-fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.exercise-line-edit-fields input {
+  width: 56px;
+  padding: var(--space-xs);
+}
+
+.exercise-line-edit-fields span {
+  color: var(--color-text-light);
+}
+
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.add-exercise-form,
+.assign-seance-form {
+  margin-top: var(--space-md);
+  max-width: 420px;
+}
+
+.assign-buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.hint {
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-top: var(--space-sm);
+}
