@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
   const loadUser = async () => {
     if (authService.isAuthenticated()) {
       try {
-        const userData = await authService.getMe();
+        const userData = await authService.getProfile();
         setUser(userData);
       } catch (err) {
         console.error('Failed to load user:', err);
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       await authService.login(email, password);
-      const userData = await authService.getMe();
+      const userData = await authService.getProfile();
       setUser(userData);
       return true;
     } catch (err) {
@@ -51,20 +51,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (userData) => {
+    try {
+      setError(null);
+      const updated = await authService.updateProfile(userData);
+      setUser((prev) => ({ ...prev, ...updated }));
+      return true;
+    } catch (err) {
+      setError(err.message);
+      return false;
+    }
+  };
+
   const logout = () => {
     authService.logout();
     setUser(null);
   };
 
   
+  let isAuthenticated = false;
+  if (user) {
+    isAuthenticated = true;
+  }
+
   const value = {
     user,
     loading,
     error,
     login,
     register,
+    updateProfile,
     logout,
-    isAuthenticated: !!user,
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,0 +1,15 @@
+.not-found-page {
+  text-align: center;
+  padding-top: var(--space-xl);
+}
+
+.not-found-page h1 {
+  font-size: 96px;
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.not-found-page p {
+  color: var(--color-text-light);
+  margin-bottom: var(--space-lg);
+}

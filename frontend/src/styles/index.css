@@ -1,0 +1,38 @@
+/*
+  Point d'entrée UNIQUE pour tout le CSS de l'application.
+  Toutes les feuilles de style vivent dans ce dossier styles/, organisées par domaine
+  (comme components/ et pages/), et sont toutes rassemblées ici en un seul import
+  dans main.jsx. Aucun composant n'a besoin d'importer son propre CSS.
+
+  L'ORDRE compte : variables d'abord (tout le monde en a besoin), puis reset, puis base,
+  puis les styles partagés (forms), puis enfin les styles spécifiques par domaine.
+*/
+
+@import './variables.css';
+@import './reset.css';
+@import './base.css';
+@import './forms.css';
+
+@import './layout/nav-links.css';
+@import './layout/sidebar.css';
+@import './layout/desktop-header.css';
+@import './layout/mobile-header.css';
+@import './layout/bottom-nav.css';
+@import './layout/footer.css';
+
+@import './pages/home-page.css';
+@import './pages/dashboard-page.css';
+@import './pages/client-dashboard.css';
+@import './pages/not-found-page.css';
+@import './pages/auth-page.css';
+@import './pages/profile-page.css';
+
+@import './exercises/exercise-card.css';
+@import './exercises/exercises-page.css';
+
+@import './seances/seance-card.css';
+@import './seances/seances-page.css';
+@import './seances/seance-detail-page.css';
+@import './seances/seance-create-page.css';
+
+@import './clients/clients-page.css';
