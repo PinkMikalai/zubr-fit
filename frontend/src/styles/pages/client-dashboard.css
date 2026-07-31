@@ -1,0 +1,246 @@
+.client-dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+  margin-top: var(--space-lg);
+}
+
+@media (max-width: 899px) {
+  .client-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Séance du jour --- */
+
+.today-seance-card {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: white;
+}
+
+.today-seance-card h2 {
+  color: white;
+}
+
+.today-seance-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  margin-bottom: var(--space-sm);
+}
+
+.today-seance-comment {
+  opacity: 0.9;
+}
+
+.today-seance-empty {
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.today-seance-empty h2 {
+  color: var(--color-heading);
+}
+
+.today-seance-stats {
+  display: flex;
+  gap: var(--space-xl);
+  margin: var(--space-md) 0;
+}
+
+.today-seance-stat-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+  margin-bottom: 0;
+}
+
+.today-seance-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.today-seance-cta {
+  display: inline-block;
+  background: white;
+  color: var(--color-primary);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* --- Aperçu des exercices de la séance du jour --- */
+
+.today-exercises {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+.today-exercise-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.today-exercise-card h3 {
+  padding: var(--space-sm) var(--space-sm) 0;
+  margin-bottom: 0;
+}
+
+.today-exercise-card p {
+  padding: 0 var(--space-sm) var(--space-sm);
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-bottom: 0;
+}
+
+.today-exercise-thumbnail {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  background: var(--color-primary-light);
+}
+
+.today-exercise-thumbnail-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.today-exercise-thumbnail-placeholder img {
+  width: 24px;
+  height: 24px;
+}
+
+/* --- Colonne de droite --- */
+
+.client-dashboard-side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.progress-card {
+  text-align: center;
+}
+
+.progress-card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-light);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.progress-ring {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+  transform: rotate(-90deg);
+}
+
+.progress-ring-track {
+  fill: none;
+  stroke: var(--color-primary-light);
+  stroke-width: 8;
+}
+
+.progress-ring-value {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.progress-ring-percent,
+.progress-ring-label {
+  transform: rotate(90deg);
+  transform-origin: 50px 50px;
+  fill: var(--color-heading);
+}
+
+.progress-ring-percent {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.progress-ring-label {
+  font-size: 8px;
+  fill: var(--color-text-light);
+}
+
+.progress-card-count {
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-top: var(--space-sm);
+  margin-bottom: 0;
+}
+
+.history-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+
+.history-card-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-light);
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.history-card-header a {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.history-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.history-check img {
+  width: 14px;
+  height: 14px;
+}
+
+.history-name {
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.history-date {
+  color: var(--color-text-light);
+  font-size: 13px;
+  margin-bottom: 0;
+}

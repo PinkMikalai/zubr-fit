@@ -1,0 +1,63 @@
+/*
+  Toutes les couleurs, espacements et polices de l'application sont définis ici,
+  une seule fois, sous forme de "variables CSS" (custom properties).
+  Le reste du CSS utilise var(--nom-de-la-variable) au lieu de répéter les valeurs partout.
+*/
+
+:root {
+  /* Couleurs */
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+  --color-heading: #111827;
+  --color-background: #f4f5fb;
+  --color-surface: #ffffff;
+  --color-border: #e6e7f2;
+
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #eef0ff;
+  --color-error: #dc2626;
+  --color-error-background: #fef2f2;
+  --color-success: #16a34a;
+  --color-success-background: #ecfdf3;
+
+  /* Ombre douce utilisée sur toutes les cards (voir .card dans base.css) */
+  --shadow-card: 0 1px 2px rgba(30, 27, 75, 0.04), 0 4px 12px rgba(30, 27, 75, 0.06);
+
+  /* Typographie */
+  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-size-base: 16px;
+
+  /* Espacements (toujours des multiples de 4px, pour rester cohérent) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Bordures : --radius pour les petits éléments (boutons, champs), --radius-lg pour les cards */
+  --radius: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+}
+
+/* En mode sombre, on remplace juste les couleurs, le reste du CSS ne change pas */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: #e5e7eb;
+    --color-text-light: #9ca3af;
+    --color-heading: #f9fafb;
+    --color-background: #14141f;
+    --color-surface: #1e1e2e;
+    --color-border: #30304a;
+
+    --color-primary: #818cf8;
+    --color-primary-hover: #a5b4fc;
+    --color-primary-light: #2a2a45;
+    --color-error: #f87171;
+    --color-error-background: #3b1a1a;
+    --color-success-background: #0f2e1f;
+
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}

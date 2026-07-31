@@ -1,7 +1,10 @@
-import { Route } from "react-router-dom";
-import login from "../pages/auth/loginPage";
-import register from "../pages/auth/registerPage";
-import me from "../pages/auth/me";
-import logout from "../pages/auth/logout";
+import { Route } from 'react-router-dom';
+import LoginPage from '../pages/auth/LoginPage';
+import RegisterPage from '../pages/auth/RegisterPage';
 
-cons
+const authRoutes = [
+  <Route key="login" path="/login" element={<LoginPage />} />,
+  <Route key="register" path="/register" element={<RegisterPage />} />,
+];
+
+export default authRoutes;

@@ -1,0 +1,13 @@
+.home-page {
+  text-align: center;
+  padding-top: var(--space-xl);
+}
+
+.home-page h1 {
+  font-size: 48px;
+}
+
+.home-page p {
+  color: var(--color-text-light);
+  margin-bottom: var(--space-lg);
+}
