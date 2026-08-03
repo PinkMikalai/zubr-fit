@@ -125,6 +125,17 @@
   opacity: 0.3;
 }
 
+/* Numéro de position affiché entre les deux flèches, pour voir clairement où en est l'exercice */
+.exercise-line-position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-text-light);
+}
+
 /* À partir d'une largeur tablette/desktop, la carte passe en ligne (vignette à gauche)
    au lieu d'empiler l'image en haut, plus adapté à un écran large */
 @media (min-width: 700px) {
@@ -180,9 +191,76 @@
   max-width: 420px;
 }
 
+.assign-seance-title {
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.assign-seance-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.assign-seance-field select {
+  width: 100%;
+}
+
+.seance-assignees-block {
+  margin-bottom: var(--space-md);
+  max-width: 420px;
+}
+
+.seance-assignees-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-light);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.seance-assignee-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.seance-assignee-list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 500;
+}
+
+.seance-assignee-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.seance-assignee-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.seance-assignee-remove {
+  font-size: 13px;
+  padding: var(--space-xs) var(--space-sm);
+  flex-shrink: 0;
+}
+
 .assign-buttons {
   display: flex;
   gap: var(--space-sm);
+}
+
+.assign-buttons button {
+  flex: 1;
+  justify-content: center;
 }
 
 .hint {

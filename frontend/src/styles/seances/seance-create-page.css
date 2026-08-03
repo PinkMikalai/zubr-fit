@@ -10,6 +10,12 @@
   color: var(--color-text-light);
 }
 
+/* Pour les pages qui n'ont qu'une seule carte (ex : modifier une séance), pas besoin
+   de toute la largeur desktop */
+.seance-create-narrow {
+  max-width: 480px;
+}
+
 /* Deux colonnes à partir de la largeur desktop, une seule colonne en dessous */
 .seance-create-grid {
   display: grid;

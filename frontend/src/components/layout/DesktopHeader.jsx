@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import searchIcon from '../../assets/icons/search.svg';
 import calendarIcon from '../../assets/icons/calendar.svg';
 
 // La date du jour, écrite en toutes lettres en français (ex : "Lundi 24 octobre")
@@ -16,38 +14,16 @@ function getTodayLabel() {
 // Sur mobile/tablette, c'est MobileHeader qui gère la barre du haut à la place.
 function DesktopHeader() {
   const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const [query, setQuery] = useState('');
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (query) {
-      navigate(`/seances?q=${encodeURIComponent(query)}`);
-    } else {
-      navigate('/seances');
-    }
-  };
 
   // On prépare le contenu de la barre AVANT le return, avec un if/else classique
   let content;
 
   if (isAuthenticated) {
     content = (
-      <>
-        <form onSubmit={handleSearch} className="header-search">
-          <img src={searchIcon} alt="" className="header-search-icon" />
-          <input
-            type="text"
-            placeholder="Rechercher une séance..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </form>
-        <span className="header-date">
-          <img src={calendarIcon} alt="" />
-          {getTodayLabel()}
-        </span>
-      </>
+      <span className="header-date">
+        <img src={calendarIcon} alt="" />
+        {getTodayLabel()}
+      </span>
     );
   } else {
     content = (

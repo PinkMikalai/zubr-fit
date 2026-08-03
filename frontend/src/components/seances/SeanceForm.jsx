@@ -1,8 +1,9 @@
 import { useState } from 'react';
+import { LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 
 function getInitialFormValues(initialValues) {
   if (!initialValues) {
-    return { name: '', duration: '', comment: '' };
+    return { name: '', duration: '', comment: '', level: '' };
   }
 
   let comment = initialValues.comment;
@@ -10,10 +11,16 @@ function getInitialFormValues(initialValues) {
     comment = '';
   }
 
+  let level = initialValues.level;
+  if (!level) {
+    level = '';
+  }
+
   return {
     name: initialValues.name,
     duration: initialValues.duration,
     comment: comment,
+    level: level,
   };
 }
 
@@ -57,6 +64,16 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
           value={form.duration}
           onChange={handleChange}
         />
+      </div>
+
+      <div>
+        <label htmlFor="level">Niveau (optionnel)</label>
+        <select id="level" name="level" value={form.level} onChange={handleChange}>
+          <option value="">Non précisé</option>
+          {LEVEL_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
       </div>
 
       <div>

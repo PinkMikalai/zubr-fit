@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\Level;
 use App\Repository\SeanceRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -33,6 +34,10 @@ class Seance
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
+
+    // Optionnel : pour quel niveau cette séance est prévue (même enum que les exercices)
+    #[ORM\Column(enumType: Level::class, nullable: true)]
+    private ?Level $level = null;
 
     #[ORM\Column(name: 'completed_at', nullable: true)]
     private ?\DateTimeImmutable $completedAt = null;
@@ -80,6 +85,18 @@ class Seance
     public function setComment(?string $comment): static
     {
         $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getLevel(): ?Level
+    {
+        return $this->level;
+    }
+
+    public function setLevel(?Level $level): static
+    {
+        $this->level = $level;
 
         return $this;
     }

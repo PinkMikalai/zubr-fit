@@ -1,18 +1,5 @@
 import { useState } from 'react';
-
-const CATEGORIES = [
-  { value: 'musculation', label: 'Musculation' },
-  { value: 'cardio', label: 'Cardio' },
-  { value: 'mobilite', label: 'Mobilité' },
-  { value: 'fonctionnel', label: 'Fonctionnel' },
-  { value: 'autre', label: 'Autre' },
-];
-
-const LEVELS = [
-  { value: 'debutant', label: 'Débutant' },
-  { value: 'intermediaire', label: 'Intermédiaire' },
-  { value: 'avance', label: 'Avancé' },
-];
+import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 
 // Calcule les valeurs de départ du formulaire à partir de l'exercice existant (si on est en édition)
 function getInitialFormValues(initialValues) {
@@ -95,7 +82,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="category">Catégorie</label>
         <select id="category" name="category" value={form.category} onChange={handleChange}>
-          {CATEGORIES.map((c) => (
+          {CATEGORY_OPTIONS.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
             </option>
@@ -106,7 +93,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="level">Niveau</label>
         <select id="level" name="level" value={form.level} onChange={handleChange}>
-          {LEVELS.map((l) => (
+          {LEVEL_OPTIONS.map((l) => (
             <option key={l.value} value={l.value}>
               {l.label}
             </option>

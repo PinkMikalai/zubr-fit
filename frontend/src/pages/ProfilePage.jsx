@@ -56,7 +56,7 @@ function ProfilePage() {
           {user.firstname} {user.lastname}
         </h2>
         <p className="profile-role">{getRoleLabel(user.roles)}</p>
-        <button onClick={() => setIsEditing(true)} className="button-secondary">Modifier mon profil</button>
+        <button onClick={() => setIsEditing(true)} className="button-warning">Modifier mon profil</button>
       </div>
 
       {/* Carte coordonnées : uniquement les champs que le backend renvoie vraiment */}

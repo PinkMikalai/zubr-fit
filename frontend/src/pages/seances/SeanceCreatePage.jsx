@@ -4,7 +4,9 @@ import exerciseService from '../../services/exerciseService';
 import coachClientService from '../../services/coachClientService';
 import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
-import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
+import { getCategoryLabel, getLevelLabel, LEVEL_OPTIONS } from '../../utils/exerciseLabels';
+import { useExerciseFilters } from '../../hooks/useExerciseFilters';
+import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import plusIcon from '../../assets/icons/plus.svg';
@@ -28,10 +30,12 @@ function SeanceCreatePage() {
   const [name, setName] = useState('');
   const [duration, setDuration] = useState('');
   const [comment, setComment] = useState('');
+  const [level, setLevel] = useState('');
 
   const [exercises, setExercises] = useState([]);
   const [clients, setClients] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
+  const exerciseFilters = useExerciseFilters(exercises);
 
   // Les exercices et clients choisis ne sont gardés qu'en local tant que la séance
   // n'existe pas encore : ils seront envoyés au serveur seulement au clic sur "Finaliser la séance".
@@ -132,7 +136,7 @@ function SeanceCreatePage() {
     setError(null);
 
     try {
-      const created = await seanceService.create({ name, duration, comment });
+      const created = await seanceService.create({ name, duration, comment, level });
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
@@ -195,9 +199,15 @@ function SeanceCreatePage() {
   if (isPickerOpen) {
     pickerForm = (
       <div className="card seance-create-line-picker">
+        <ExerciseFilterBar
+          category={exerciseFilters.category}
+          level={exerciseFilters.level}
+          onCategoryChange={exerciseFilters.setCategory}
+          onLevelChange={exerciseFilters.setLevel}
+        />
         <select value={pickedExerciseId} onChange={(e) => setPickedExerciseId(e.target.value)}>
           <option value="">Choisir un exercice...</option>
-          {exercises.map((exercise) => (
+          {exerciseFilters.filteredExercises.map((exercise) => (
             <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
           ))}
         </select>
@@ -424,6 +434,16 @@ function SeanceCreatePage() {
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                 />
+              </div>
+
+              <div>
+                <label htmlFor="level">Niveau (optionnel)</label>
+                <select id="level" value={level} onChange={(e) => setLevel(e.target.value)}>
+                  <option value="">Non précisé</option>
+                  {LEVEL_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

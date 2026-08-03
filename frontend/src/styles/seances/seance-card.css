@@ -8,3 +8,26 @@
   font-size: 14px;
   margin-bottom: 0;
 }
+
+.seance-card-assignees {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.seance-card-assignees img {
+  width: 14px;
+  height: 14px;
+}
+
+.seance-card-level {
+  display: inline-block;
+  margin-left: var(--space-xs);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+}

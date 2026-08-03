@@ -1,12 +1,15 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSeances } from '../../hooks/useSeances';
 import { useAuth } from '../../hooks/useAuth';
 import SeanceCard from '../../components/seances/SeanceCard';
+import { LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 
 function SeancesPage() {
   const { seances, loading, error, remove } = useSeances();
   const { user } = useAuth();
-  const [searchParams] = useSearchParams();
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [levelFilter, setLevelFilter] = useState('');
 
   if (loading) {
     return <p>Chargement...</p>;
@@ -17,12 +20,18 @@ function SeancesPage() {
     isCoach = true;
   }
 
-  // On filtre par nom si la barre de recherche du header a été utilisée (paramètre ?q=)
-  const query = searchParams.get('q');
   let visibleSeances = seances;
-  if (query) {
-    const needle = query.toLowerCase();
-    visibleSeances = seances.filter((seance) => seance.name.toLowerCase().includes(needle));
+
+  // Par statut (en cours / terminée)
+  if (statusFilter === 'ongoing') {
+    visibleSeances = visibleSeances.filter((seance) => !seance.completedAt);
+  } else if (statusFilter === 'completed') {
+    visibleSeances = visibleSeances.filter((seance) => seance.completedAt);
+  }
+
+  // Et enfin par niveau de difficulté
+  if (levelFilter) {
+    visibleSeances = visibleSeances.filter((seance) => seance.level === levelFilter);
   }
 
   let errorMessage = null;
@@ -30,29 +39,40 @@ function SeancesPage() {
     errorMessage = <p className="form-error">{error}</p>;
   }
 
+  // La description change selon le rôle : un coach gère ses séances, un client les consulte
+  let description = "Consulte tes séances d'entraînement, en cours et déjà terminées.";
+  if (isCoach) {
+    description = "Gère les séances que tu as créées pour tes clients.";
+  }
+
   let newSeanceLink = null;
   if (isCoach) {
-    newSeanceLink = <Link to="/seances/new">Nouvelle séance</Link>;
+    newSeanceLink = <Link to="/seances/new" className="button-primary">Nouvelle séance</Link>;
   }
 
   let content;
-  if (visibleSeances.length === 0 && query) {
-    content = <p>Aucune séance ne correspond à "{query}".</p>;
-  } else if (visibleSeances.length === 0) {
+  if (seances.length === 0) {
     content = <p>Aucune séance pour l'instant.</p>;
+  } else if (visibleSeances.length === 0) {
+    content = <p>Aucune séance ne correspond à ce filtre.</p>;
   } else {
     content = (
       <ul className="seance-list">
         {visibleSeances.map((seance) => {
-          let removeButton = null;
+          let coachActions = null;
           if (isCoach) {
-            removeButton = <button onClick={() => remove(seance.id)}>Supprimer</button>;
+            coachActions = (
+              <div className="seance-card-actions">
+                <Link to={`/seances/${seance.id}/edit`} className="button-warning">Modifier</Link>
+                <button onClick={() => remove(seance.id)} className="button-danger">Supprimer</button>
+              </div>
+            );
           }
 
           return (
             <li key={seance.id}>
               <SeanceCard seance={seance} />
-              {removeButton}
+              {coachActions}
             </li>
           );
         })}
@@ -62,8 +82,31 @@ function SeancesPage() {
 
   return (
     <div>
-      <h1>Mes séances</h1>
-      {newSeanceLink}
+      <div className="seances-page-header">
+        <div>
+          <h1>Mes séances</h1>
+          <p className="page-description">{description}</p>
+        </div>
+        {newSeanceLink}
+      </div>
+
+      <div className="seance-filter-bar">
+        <label htmlFor="statusFilter">Statut</label>
+        <select id="statusFilter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <option value="all">Tous</option>
+          <option value="ongoing">En cours</option>
+          <option value="completed">Terminée</option>
+        </select>
+
+        <label htmlFor="levelFilter">Niveau</label>
+        <select id="levelFilter" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
+          <option value="">Tous les niveaux</option>
+          {LEVEL_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
+          ))}
+        </select>
+      </div>
+
       {errorMessage}
       {content}
     </div>

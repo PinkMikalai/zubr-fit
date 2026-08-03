@@ -17,19 +17,19 @@ const seanceService = {
     return data.data;
   },
 
-  async create({ name, duration, comment }) {
+  async create({ name, duration, comment, level }) {
     const data = await api('/seance/new', {
       method: 'POST',
-      body: { name: name, duration: duration, comment: comment },
+      body: { name: name, duration: duration, comment: comment, level: level },
       token: authService.getToken(),
     });
     return data.data;
   },
 
-  async update(id, { name, duration, comment }) {
+  async update(id, { name, duration, comment, level }) {
     const data = await api(`/seance/${id}`, {
       method: 'PUT',
-      body: { name: name, duration: duration, comment: comment },
+      body: { name: name, duration: duration, comment: comment, level: level },
       token: authService.getToken(),
     });
     return data.data;
@@ -62,6 +62,16 @@ const seanceService = {
       body: { user_ids: userIds },
       token: authService.getToken(),
     });
+    return data.data;
+  },
+
+  // La liste des clients à qui cette séance est assignée (réservé aux coachs)
+  async getAssignees(id) {
+    const data = await api(`/seance/${id}/assignees`, { token: authService.getToken() });
+
+    if (!data.data) {
+      return [];
+    }
     return data.data;
   },
 };
