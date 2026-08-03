@@ -92,21 +92,26 @@ final class SeanceController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['level']) || empty($data['level'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le niveau est obligatoire'
+            ], 400);
+        }
+
         $seance = new Seance();
         $seance->setName($data['name']);
         $seance->setDuration((int)$data['duration']);
         $seance->setComment($data['comment'] ?? null);
 
-        if (!empty($data['level'])) {
-            try {
-                $seance->setLevel(Level::from($data['level']));
-            } catch (\ValueError $e) {
-                return $this->json([
-                    'status' => false,
-                    'message' => 'Invalid level value',
-                    'error' => $e->getMessage()
-                ], 400);
-            }
+        try {
+            $seance->setLevel(Level::from($data['level']));
+        } catch (\ValueError $e) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid level value',
+                'error' => $e->getMessage()
+            ], 400);
         }
 
         $errorResponse = $this->validationService->getErrorResponse($seance);
@@ -206,18 +211,14 @@ final class SeanceController extends AbstractController
         $seance->setComment($data['comment'] ?? $seance->getComment());
 
         if (isset($data['level'])) {
-            if (empty($data['level'])) {
-                $seance->setLevel(null);
-            } else {
-                try {
-                    $seance->setLevel(Level::from($data['level']));
-                } catch (\ValueError $e) {
-                    return $this->json([
-                        'status' => false,
-                        'message' => 'Invalid level value',
-                        'error' => $e->getMessage()
-                    ], 400);
-                }
+            try {
+                $seance->setLevel(Level::from($data['level']));
+            } catch (\ValueError $e) {
+                return $this->json([
+                    'status' => false,
+                    'message' => 'Invalid level value',
+                    'error' => $e->getMessage()
+                ], 400);
             }
         }
 

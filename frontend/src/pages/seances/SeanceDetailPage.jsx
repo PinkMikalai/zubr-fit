@@ -3,15 +3,22 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
 import { useAuth } from '../../hooks/useAuth';
+import QuickAssignClients from '../../components/seances/QuickAssignClients';
 import SeanceExerciseRow from '../../components/seances/SeanceExerciseRow';
-import AddSeanceExerciseForm from '../../components/seances/AddSeanceExerciseForm';
-import AssignSeanceForm from '../../components/seances/AssignSeanceForm';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import usersIcon from '../../assets/icons/users.svg';
 import userIcon from '../../assets/icons/user.svg';
+import calendarIcon from '../../assets/icons/calendar.svg';
+import statusIcon from '../../assets/icons/status.svg';
+import { getLevelLabel } from '../../utils/exerciseLabels';
+import { formatDate } from '../../utils/formatDate';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Page "Voir" d'une séance : uniquement de l'affichage (infos, exercices, clients assignés)
+// et 3 actions simples (Modifier / Marquer comme terminée / Supprimer), plus une assignation
+// rapide de client. Toute la vraie édition (structure des exercices, infos de base) se fait
+// sur la page "Modifier" (SeanceFormPage).
 function SeanceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,10 +29,6 @@ function SeanceDetailPage() {
   const [assignees, setAssignees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const loadLines = () => {
-    seanceExerciseService.list(id).then(setLines);
-  };
 
   const loadAssignees = () => {
     seanceService.getAssignees(id).then(setAssignees);
@@ -60,52 +63,8 @@ function SeanceDetailPage() {
     setSeance(updated);
   };
 
-  // Un exercice ajouté va toujours à la fin de la séance : sa position ne peut pas
-  // rentrer en conflit avec un exercice déjà présent. Pour réordonner, on utilise les flèches.
-  const handleAddExercise = async ({ exerciseId, sets, reps }) => {
-    await seanceExerciseService.add(id, {
-      exerciseId: exerciseId,
-      sets: sets,
-      reps: reps,
-      position: lines.length,
-    });
-    loadLines();
-  };
-
-  const handleRemoveExercise = async (lineId) => {
-    await seanceExerciseService.remove(id, lineId);
-    loadLines();
-  };
-
-  const handleUpdateExercise = async (lineId, { sets, reps }) => {
-    await seanceExerciseService.update(id, lineId, { sets: sets, reps: reps });
-    loadLines();
-  };
-
-  // Échange la position de deux exercices déjà enregistrés, pour de vrai (côté serveur)
-  const handleMoveLine = async (index, direction) => {
-    const targetIndex = index + direction;
-    if (targetIndex < 0 || targetIndex >= lines.length) {
-      return;
-    }
-
-    const current = lines[index];
-    const target = lines[targetIndex];
-
-    await Promise.all([
-      seanceExerciseService.update(id, current.id, { sets: current.sets, reps: current.reps, position: target.position }),
-      seanceExerciseService.update(id, target.id, { sets: target.sets, reps: target.reps, position: current.position }),
-    ]);
-    loadLines();
-  };
-
   const handleAssign = async (clientId) => {
     await seanceService.assign(id, [clientId]);
-    loadAssignees();
-  };
-
-  const handleUnassign = async (clientId) => {
-    await seanceService.unassign(id, [clientId]);
     loadAssignees();
   };
 
@@ -121,7 +80,7 @@ function SeanceDetailPage() {
     return null;
   }
 
-  // La gestion (modifier/supprimer/exercices/assignation) est réservée au coach.
+  // La gestion (modifier/supprimer/assignation) est réservée au coach.
   // Un client voit sa séance en lecture seule, mais peut la marquer comme terminée.
   let isCoach = false;
   if (user && user.roles && user.roles.includes('ROLE_COACH')) {
@@ -130,7 +89,13 @@ function SeanceDetailPage() {
 
   let statusLabel = 'En cours';
   if (seance.completedAt) {
-    statusLabel = 'Terminée';
+    statusLabel = `Terminée le ${formatDate(seance.completedAt)}`;
+  }
+
+  // Le niveau est optionnel : on ne l'affiche que s'il a été renseigné
+  let levelBadge = null;
+  if (seance.level) {
+    levelBadge = <span className="seance-card-level">{getLevelLabel(seance)}</span>;
   }
 
   let completeButton = null;
@@ -150,7 +115,9 @@ function SeanceDetailPage() {
     deleteButton = <button onClick={handleDelete} className="button-danger">Supprimer</button>;
   }
 
-  // On prépare la liste des clients déjà assignés AVANT le return, avec un if/else classique
+  // On prépare la liste des clients déjà assignés AVANT le return, avec un if/else classique.
+  // Pas de bouton "Désassigner" ici : c'est une page de consultation, le retrait d'un client
+  // se fait depuis la page "Modifier".
   let assigneesList = null;
   if (assignees.length === 0) {
     assigneesList = <p className="hint">Aucun client assigné pour l'instant.</p>;
@@ -167,13 +134,6 @@ function SeanceDetailPage() {
             <li key={client.id}>
               <img src={avatarSrc} alt="" className="avatar-circle seance-assignee-avatar" />
               <span className="seance-assignee-name">{client.firstname} {client.lastname}</span>
-              <button
-                type="button"
-                onClick={() => handleUnassign(client.id)}
-                className="button-danger seance-assignee-remove"
-              >
-                Désassigner
-              </button>
             </li>
           );
         })}
@@ -185,34 +145,11 @@ function SeanceDetailPage() {
   if (isCoach) {
     assignSection = (
       <section className="card seance-create-section">
-        <h2><img src={usersIcon} alt="" className="section-icon" />Assigner à des clients</h2>
-
-        <div className="card seance-assignees-block">
-          <p className="seance-assignees-title">Clients assignés ({assignees.length})</p>
-          {assigneesList}
-        </div>
-
-        <AssignSeanceForm onAssign={handleAssign} onUnassign={handleUnassign} />
+        <h2><img src={usersIcon} alt="" className="section-icon" />Clients assignés ({assignees.length})</h2>
+        {assigneesList}
+        <QuickAssignClients assignees={assignees} onAssign={handleAssign} />
       </section>
     );
-  }
-
-  let addExerciseSection = null;
-  if (isCoach) {
-    addExerciseSection = <AddSeanceExerciseForm onAdd={handleAddExercise} />;
-  }
-
-  // Les boutons "Modifier"/"Retirer"/flèches sur chaque exercice ne sont passés que si on est coach,
-  // sinon SeanceExerciseRow ne les affiche pas du tout.
-  let removeExerciseHandler = null;
-  let updateExerciseHandler = null;
-  let makeMoveUpHandler = null;
-  let makeMoveDownHandler = null;
-  if (isCoach) {
-    removeExerciseHandler = handleRemoveExercise;
-    updateExerciseHandler = handleUpdateExercise;
-    makeMoveUpHandler = (index) => () => handleMoveLine(index, -1);
-    makeMoveDownHandler = (index) => () => handleMoveLine(index, 1);
   }
 
   let commentSection = null;
@@ -220,53 +157,26 @@ function SeanceDetailPage() {
     commentSection = <p>{seance.comment}</p>;
   }
 
+  // Les exercices sont ici en lecture seule : on ne passe aucun handler à SeanceExerciseRow
+  // (ni onRemove, ni onUpdate, ni flèches), donc elle n'affiche que l'info, pas les actions.
+  // Pour changer la structure de la séance, c'est la page "Modifier" qu'il faut utiliser.
   let exercisesList = null;
   if (lines.length === 0) {
     exercisesList = <p>Aucun exercice pour l'instant.</p>;
   } else {
     exercisesList = (
       <ul className="seance-exercise-list">
-        {lines.map((line, index) => {
-          let onMoveUp = null;
-          let onMoveDown = null;
-          if (makeMoveUpHandler) {
-            onMoveUp = makeMoveUpHandler(index);
-            onMoveDown = makeMoveDownHandler(index);
-          }
-
-          let isFirst = false;
-          if (index === 0) {
-            isFirst = true;
-          }
-
-          let isLast = false;
-          if (index === lines.length - 1) {
-            isLast = true;
-          }
-
-          return (
-            <SeanceExerciseRow
-              key={line.id}
-              line={line}
-              onRemove={removeExerciseHandler}
-              onUpdate={updateExerciseHandler}
-              onMoveUp={onMoveUp}
-              onMoveDown={onMoveDown}
-              isFirst={isFirst}
-              isLast={isLast}
-            />
-          );
-        })}
+        {lines.map((line) => (
+          <SeanceExerciseRow key={line.id} line={line} />
+        ))}
       </ul>
     );
   }
 
-  // Exercices de la séance, réutilisé dans les deux mises en page ci-dessous
   const structureSection = (
     <section className="card seance-create-section">
       <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
       {exercisesList}
-      {addExerciseSection}
     </section>
   );
 
@@ -292,14 +202,33 @@ function SeanceDetailPage() {
     <div className="seance-create-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
-        <span>/</span>
-        <span>{seance.name}</span>
+        <span className="breadcrumb-separator">›</span>
+        <span className="breadcrumb-current">{seance.name}</span>
       </nav>
 
       <div className="card seance-detail-header">
-        <h1>{seance.name}</h1>
-        <p>{seance.duration} min · {statusLabel}</p>
+        <div className="seance-detail-title-row">
+          <h1>{seance.name}</h1>
+          {levelBadge}
+        </div>
         {commentSection}
+
+        <div className="seance-detail-stats">
+          <div className="seance-detail-stat">
+            <img src={calendarIcon} alt="" />
+            <div>
+              <p className="seance-detail-stat-label">Durée</p>
+              <p className="seance-detail-stat-value">{seance.duration} min</p>
+            </div>
+          </div>
+          <div className="seance-detail-stat">
+            <img src={statusIcon} alt="" />
+            <div>
+              <p className="seance-detail-stat-label">Statut</p>
+              <p className="seance-detail-stat-value">{statusLabel}</p>
+            </div>
+          </div>
+        </div>
 
         <div className="seance-actions">
           {modifyButton}

@@ -59,20 +59,14 @@ function SeancesPage() {
     content = (
       <ul className="seance-list">
         {visibleSeances.map((seance) => {
-          let coachActions = null;
+          let onDelete = null;
           if (isCoach) {
-            coachActions = (
-              <div className="seance-card-actions">
-                <Link to={`/seances/${seance.id}/edit`} className="button-warning">Modifier</Link>
-                <button onClick={() => remove(seance.id)} className="button-danger">Supprimer</button>
-              </div>
-            );
+            onDelete = () => remove(seance.id);
           }
 
           return (
             <li key={seance.id}>
-              <SeanceCard seance={seance} />
-              {coachActions}
+              <SeanceCard seance={seance} onDelete={onDelete} />
             </li>
           );
         })}

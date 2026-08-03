@@ -37,11 +37,7 @@ function ExercisesPage() {
       <ul className="exercise-list">
         {filteredExercises.map((exercise) => (
           <li key={exercise.id}>
-            <ExerciseCard exercise={exercise} />
-            <div className="exercise-card-actions">
-              <Link to={`/exercises/${exercise.id}/edit`} className="button-warning">Modifier</Link>
-              <button onClick={() => remove(exercise.id)} className="button-danger">Supprimer</button>
-            </div>
+            <ExerciseCard exercise={exercise} onDelete={() => remove(exercise.id)} />
           </li>
         ))}
       </ul>

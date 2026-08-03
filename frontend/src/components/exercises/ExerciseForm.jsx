@@ -8,8 +8,8 @@ function getInitialFormValues(initialValues) {
     return {
       name: '',
       description: '',
-      category: 'musculation',
-      level: 'debutant',
+      category: '',
+      level: '',
     };
   }
 
@@ -19,12 +19,12 @@ function getInitialFormValues(initialValues) {
     category = initialValues.category;
   }
   if (!category) {
-    category = 'musculation';
+    category = '';
   }
 
   let level = initialValues.level;
   if (!level) {
-    level = 'debutant';
+    level = '';
   }
 
   return {
@@ -82,6 +82,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="category">Catégorie</label>
         <select id="category" name="category" value={form.category} onChange={handleChange}>
+          <option value="">Choisir une catégorie...</option>
           {CATEGORY_OPTIONS.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
@@ -93,6 +94,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="level">Niveau</label>
         <select id="level" name="level" value={form.level} onChange={handleChange}>
+          <option value="">Choisir un niveau...</option>
           {LEVEL_OPTIONS.map((l) => (
             <option key={l.value} value={l.value}>
               {l.label}

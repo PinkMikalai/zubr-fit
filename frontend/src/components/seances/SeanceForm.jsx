@@ -67,9 +67,9 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
       </div>
 
       <div>
-        <label htmlFor="level">Niveau (optionnel)</label>
+        <label htmlFor="level">Niveau</label>
         <select id="level" name="level" value={form.level} onChange={handleChange}>
-          <option value="">Non précisé</option>
+          <option value="">Choisir un niveau...</option>
           {LEVEL_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}

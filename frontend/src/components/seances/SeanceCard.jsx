@@ -1,17 +1,9 @@
 import { Link } from 'react-router-dom';
 import usersIcon from '../../assets/icons/users.svg';
 import { getLevelLabel } from '../../utils/exerciseLabels';
+import { formatDate } from '../../utils/formatDate';
 
-// Formatte une date "2026-07-20 10:00:00" en "20/07/2026"
-function formatDate(sqlDate) {
-  if (!sqlDate) {
-    return '—';
-  }
-  const formatter = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  return formatter.format(new Date(sqlDate.replace(' ', 'T')));
-}
-
-function SeanceCard({ seance }) {
+function SeanceCard({ seance, onDelete }) {
   // On prépare le statut à afficher AVANT le return, avec un if/else classique.
   // Si la séance est terminée, on affiche aussi la date à laquelle elle l'a été.
   let statusLabel = 'En cours';
@@ -37,14 +29,30 @@ function SeanceCard({ seance }) {
     );
   }
 
+  // Les boutons Modifier/Supprimer ne sont affichés que côté coach (voir SeancesPage),
+  // et font partie de la carte elle-même plutôt que d'être un bloc séparé en dessous.
+  let footer = null;
+  if (onDelete) {
+    footer = (
+      <footer className="seance-card-footer">
+        <Link to={`/seances/${seance.id}/edit`} className="button-warning">Modifier</Link>
+        <button onClick={onDelete} className="button-danger">Supprimer</button>
+      </footer>
+    );
+  }
+
   return (
-    <div className="seance-card card">
-      <h3>
-        <Link to={`/seances/${seance.id}`}>{seance.name}</Link>
-      </h3>
-      <p>{seance.duration} min · {statusLabel} {levelTag}</p>
+    <article className="seance-card card">
+      <header className="seance-card-header">
+        <h3>
+          <Link to={`/seances/${seance.id}`}>{seance.name}</Link>
+        </h3>
+        {levelTag}
+      </header>
+      <p className="seance-card-meta">{seance.duration} min · {statusLabel}</p>
       {assigneeCount}
-    </div>
+      {footer}
+    </article>
   );
 }
 

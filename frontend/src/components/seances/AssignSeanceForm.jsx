@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import coachClientService from '../../services/coachClientService';
 
-function AssignSeanceForm({ onAssign, onUnassign }) {
+function AssignSeanceForm({ onAssign }) {
   const [clients, setClients] = useState([]);
   const [loadingClients, setLoadingClients] = useState(true);
   const [clientId, setClientId] = useState('');
@@ -37,25 +37,6 @@ function AssignSeanceForm({ onAssign, onUnassign }) {
     }
   };
 
-  const handleUnassign = async () => {
-    if (!clientId) {
-      setError('Choisis un client');
-      return;
-    }
-
-    setSubmitting(true);
-    setError(null);
-    setMessage(null);
-    try {
-      await onUnassign(Number(clientId));
-      setMessage('Séance désassignée.');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   let errorMessage = null;
   if (error) {
     errorMessage = <p className="form-error">{error}</p>;
@@ -82,7 +63,7 @@ function AssignSeanceForm({ onAssign, onUnassign }) {
 
   return (
     <div className="card assign-seance-form">
-      <p className="assign-seance-title">Ajouter ou retirer un client</p>
+      <p className="assign-seance-title">Ajouter un client</p>
 
       <div className="assign-seance-field">
         <label htmlFor="clientId">Client</label>
@@ -102,9 +83,6 @@ function AssignSeanceForm({ onAssign, onUnassign }) {
       <div className="assign-buttons">
         <button type="button" onClick={handleAssign} disabled={submitting} className="button-primary">
           Assigner
-        </button>
-        <button type="button" onClick={handleUnassign} disabled={submitting} className="button-secondary">
-          Désassigner
         </button>
       </div>
     </div>

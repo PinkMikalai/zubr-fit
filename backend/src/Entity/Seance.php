@@ -35,8 +35,9 @@ class Seance
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
 
-    // Optionnel : pour quel niveau cette séance est prévue (même enum que les exercices)
-    #[ORM\Column(enumType: Level::class, nullable: true)]
+    // Pour quel niveau cette séance est prévue (même enum que les exercices)
+    #[ORM\Column(enumType: Level::class)]
+    #[Assert\NotBlank(message: 'Le niveau est obligatoire')]
     private ?Level $level = null;
 
     #[ORM\Column(name: 'completed_at', nullable: true)]
@@ -94,7 +95,7 @@ class Seance
         return $this->level;
     }
 
-    public function setLevel(?Level $level): static
+    public function setLevel(Level $level): static
     {
         $this->level = $level;
 

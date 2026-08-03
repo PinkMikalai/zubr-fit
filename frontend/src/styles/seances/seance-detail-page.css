@@ -1,6 +1,50 @@
-/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card.
+   Contrairement à la page "Modifier" (un formulaire), cette page affiche un résumé en lecture
+   seule : les infos sont montrées en stats avec icônes, pas dans des champs de saisie. */
 .seance-detail-header {
   margin-bottom: var(--space-md);
+}
+
+.seance-detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.seance-detail-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-border);
+}
+
+.seance-detail-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.seance-detail-stat img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.seance-detail-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-light);
+  margin-bottom: 0;
+}
+
+.seance-detail-stat-value {
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: 0;
 }
 
 .seance-actions {
@@ -223,7 +267,7 @@
 
 .seance-assignee-list {
   list-style: none;
-  margin: 0;
+  margin: 0 0 var(--space-md);
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -267,4 +311,30 @@
   color: var(--color-text-light);
   font-size: 13px;
   margin-top: var(--space-sm);
+}
+
+/* Widget d'assignation rapide (QuickAssignClients), voir SeanceDetailPage */
+.quick-assign-panel {
+  margin-top: var(--space-sm);
+}
+
+.quick-assign-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.quick-assign-list button {
+  width: 100%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  text-align: left;
+}
+
+.quick-assign-list button:hover {
+  background: var(--color-primary);
+  color: white;
 }

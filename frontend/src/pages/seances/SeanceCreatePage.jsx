@@ -401,8 +401,8 @@ function SeanceCreatePage() {
     <div className="seance-create-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
-        <span>/</span>
-        <span>Nouvelle séance</span>
+        <span className="breadcrumb-separator">›</span>
+        <span className="breadcrumb-current">Nouvelle séance</span>
       </nav>
 
       <h1>Créer une séance d'entraînement</h1>
@@ -437,9 +437,9 @@ function SeanceCreatePage() {
               </div>
 
               <div>
-                <label htmlFor="level">Niveau (optionnel)</label>
+                <label htmlFor="level">Niveau</label>
                 <select id="level" value={level} onChange={(e) => setLevel(e.target.value)}>
-                  <option value="">Non précisé</option>
+                  <option value="">Choisir un niveau...</option>
                   {LEVEL_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
@@ -480,12 +480,7 @@ function SeanceCreatePage() {
 
           <div className="seance-create-column">
             <section className="card seance-create-section">
-              <div className="seance-create-section-header">
-                <h2><img src={dumbbellIcon} alt="" className="section-icon" />Structure de la séance</h2>
-                <button type="button" onClick={() => setIsPickerOpen(true)} className="button-secondary">
-                  <img src={plusIcon} alt="" /> Ajouter un exercice
-                </button>
-              </div>
+              <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
               {linesList}
               {pickerForm}
               {addExerciseCard}
