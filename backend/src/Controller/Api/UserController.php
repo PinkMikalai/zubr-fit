@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Repository\CoachClientRepository;
 use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,7 +20,8 @@ final class UserController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validationService,
         private UserPasswordHasherInterface $passwordHasher,
-        private MediaUploader $mediaUploader
+        private MediaUploader $mediaUploader,
+        private CoachClientRepository $coachClientRepository
     ) {
     }
 
@@ -53,10 +55,20 @@ final class UserController extends AbstractController
         ]);
     }
 
-    //voir le profil d'un utilisateur
+    // Voir le profil d'un client précis : réservé au coach qui gère (ou a géré) ce client.
+    // Sans cette vérification, n'importe quel utilisateur connecté pourrait consulter les
+    // coordonnées de n'importe qui juste en devinant un id dans l'URL.
     #[Route('/{id}', name: 'profile_show', methods: ['GET'])]
     public function showUser(int $id): JsonResponse
     {
+        $coach = $this->getUser();
+        if (!$coach instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Non autorisé'
+            ], 401);
+        }
+
         $user = $this->em->getRepository(User::class)->find($id);
         if (!$user) {
             return $this->json([
@@ -64,6 +76,14 @@ final class UserController extends AbstractController
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
+
+        if (!in_array('ROLE_COACH', $coach->getRoles(), true) || !$this->coachClientRepository->findRelation($coach, $user)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
         return $this->json([
             'status' => true,
             'data' => [

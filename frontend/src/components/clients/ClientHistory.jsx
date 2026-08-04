@@ -1,17 +1,9 @@
 import { useState } from 'react';
 import coachClientService from '../../services/coachClientService';
 import userIcon from '../../assets/icons/user.svg';
+import { formatDate } from '../../utils/formatDate';
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-// Formatte une date "2026-07-20 10:00:00" en "20/07/2026"
-function formatDate(sqlDate) {
-  if (!sqlDate) {
-    return '—';
-  }
-  const formatter = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  return formatter.format(new Date(sqlDate.replace(' ', 'T')));
-}
 
 function ClientHistory() {
   const [isOpen, setIsOpen] = useState(false);

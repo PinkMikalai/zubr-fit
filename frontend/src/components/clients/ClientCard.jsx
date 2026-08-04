@@ -20,7 +20,7 @@ function ClientCard({ coachClient, onRemove }) {
       </div>
       <div className="client-card-actions">
         <Link to={`/clients/${client.id}`} className="button-secondary">Voir profil</Link>
-        <button onClick={() => onRemove(coachClient.id)}>Retirer</button>
+        <button onClick={() => onRemove(coachClient.id)} className="button-danger">Retirer</button>
       </div>
     </div>
   );

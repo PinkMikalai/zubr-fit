@@ -80,9 +80,16 @@
   text-overflow: ellipsis;
 }
 
-/* Desktop : à partir de 900px de large, on affiche la sidebar fixe à gauche */
+/* Desktop : à partir de 900px de large, on affiche la sidebar fixe à gauche.
+   position: sticky + height: 100vh l'accroche à la fenêtre visible : sans ça, elle s'étire
+   sur toute la hauteur de la page (à cause du contenu principal) et le pied (profil/déconnexion)
+   se retrouve poussé très bas, hors de l'écran quand on scrolle une page longue. */
 @media (min-width: 900px) {
   .sidebar {
     display: flex;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
   }
 }

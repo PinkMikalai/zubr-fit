@@ -1,10 +1,65 @@
-/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
-.seance-card h3 {
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card.
+   La carte est un <article> avec un <header> (titre + niveau) et un <footer> (actions coach),
+   pour que les boutons fassent visuellement partie de la carte au lieu de flotter en dessous. */
+.seance-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.seance-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.seance-card-header h3 {
   margin-bottom: var(--space-xs);
 }
 
-.seance-card p {
+.seance-card-meta {
   color: var(--color-text-light);
   font-size: 14px;
   margin-bottom: 0;
+}
+
+.seance-card-assignees {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+  color: var(--color-text-light);
+  font-size: 14px;
+}
+
+.seance-card-assignees img {
+  width: 14px;
+  height: 14px;
+}
+
+.seance-card-level {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.seance-card-footer {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
+.seance-card-footer a,
+.seance-card-footer button {
+  flex: 1;
+  justify-content: center;
+  font-size: 13px;
 }

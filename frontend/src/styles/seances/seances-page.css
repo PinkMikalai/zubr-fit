@@ -1,3 +1,33 @@
+.seances-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.seances-page-header .page-description {
+  color: var(--color-text-light);
+  margin-top: var(--space-xs);
+  max-width: 480px;
+}
+
+.seance-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.seance-filter-bar label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.seance-filter-bar select {
+  min-width: 160px;
+}
+
 .seance-list {
   list-style: none;
   margin: var(--space-md) 0 0;
@@ -7,8 +37,3 @@
   gap: var(--space-md);
 }
 
-.seance-list li {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
