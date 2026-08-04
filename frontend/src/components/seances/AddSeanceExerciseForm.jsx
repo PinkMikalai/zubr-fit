@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
+import { useExerciseFilters } from '../../hooks/useExerciseFilters';
+import ExerciseFilterBar from '../exercises/ExerciseFilterBar';
 
 function AddSeanceExerciseForm({ onAdd }) {
   const [exercises, setExercises] = useState([]);
@@ -10,6 +12,7 @@ function AddSeanceExerciseForm({ onAdd }) {
   const [reps, setReps] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const exerciseFilters = useExerciseFilters(exercises);
 
   useEffect(() => {
     exerciseService
@@ -72,9 +75,15 @@ function AddSeanceExerciseForm({ onAdd }) {
 
       <div>
         <label htmlFor="exerciseId">Exercice</label>
+        <ExerciseFilterBar
+          category={exerciseFilters.category}
+          level={exerciseFilters.level}
+          onCategoryChange={exerciseFilters.setCategory}
+          onLevelChange={exerciseFilters.setLevel}
+        />
         <select id="exerciseId" value={exerciseId} onChange={(e) => setExerciseId(e.target.value)}>
           <option value="">Choisir...</option>
-          {exercises.map((exercise) => (
+          {exerciseFilters.filteredExercises.map((exercise) => (
             <option key={exercise.id} value={exercise.id}>
               {exercise.name}
             </option>

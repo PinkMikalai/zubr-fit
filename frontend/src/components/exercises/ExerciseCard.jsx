@@ -4,7 +4,7 @@ import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-function ExerciseCard({ exercise }) {
+function ExerciseCard({ exercise, onDelete }) {
   // On prépare l'image AVANT le return, avec un if/else classique.
   // S'il n'y a pas d'illustration, on affiche l'icône haltère sur un fond de couleur à la place.
   let illustration;
@@ -24,8 +24,19 @@ function ExerciseCard({ exercise }) {
     );
   }
 
+  // Les boutons Modifier/Supprimer font partie de la carte elle-même, pas un bloc à part en dessous.
+  let footer = null;
+  if (onDelete) {
+    footer = (
+      <footer className="exercise-card-footer">
+        <Link to={`/exercises/${exercise.id}/edit`} className="button-warning">Modifier</Link>
+        <button onClick={onDelete} className="button-danger">Supprimer</button>
+      </footer>
+    );
+  }
+
   return (
-    <div className="exercise-card card">
+    <article className="exercise-card card">
       {illustration}
       <div className="exercise-card-body">
         <h3>
@@ -35,8 +46,9 @@ function ExerciseCard({ exercise }) {
           <span className="badge">{getCategoryLabel(exercise)}</span>
           <span className="badge">{getLevelLabel(exercise)}</span>
         </div>
+        {footer}
       </div>
-    </div>
+    </article>
   );
 }
 

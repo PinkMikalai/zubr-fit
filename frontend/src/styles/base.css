@@ -80,6 +80,7 @@ button:disabled {
 /* Une "card" : le bloc de base utilisé pour les exercices, séances, clients... */
 .card {
   background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   padding: var(--space-md);
@@ -144,15 +145,43 @@ button:disabled {
   text-decoration: underline;
 }
 
-/* Bouton (ou lien) secondaire : contour discret au lieu du fond indigo plein du bouton par défaut */
-.button-secondary {
+/*
+  Toutes les variantes de bouton (secondaire, principal, modifier, supprimer, valider) partagent
+  la même forme (padding, coins arrondis, poids du texte) : seule la couleur change.
+  Cette règle commune est indispensable pour un <Link> (balise <a>), qui ne reçoit pas
+  automatiquement le style de la balise <button> ci-dessus.
+*/
+.button-secondary,
+.button-primary,
+.button-warning,
+.button-danger,
+.button-success {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+}
+
+.button-secondary img,
+.button-primary img,
+.button-warning img,
+.button-danger img,
+.button-success img {
+  width: 14px;
+  height: 14px;
+}
+
+/* Bouton (ou lien) secondaire : contour discret au lieu du fond plein */
+.button-secondary {
   background: var(--color-surface);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  text-decoration: none;
 }
 
 .button-secondary:hover {
@@ -160,9 +189,44 @@ button:disabled {
   color: var(--color-primary);
 }
 
-.button-secondary img {
-  width: 14px;
-  height: 14px;
+/* Bouton principal plein indigo */
+.button-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.button-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+/* Action de modification (ex : Modifier) */
+.button-warning {
+  background: var(--color-warning);
+  color: white;
+}
+
+.button-warning:hover {
+  background: color-mix(in srgb, var(--color-warning) 85%, black);
+}
+
+/* Action destructive (ex : Supprimer) */
+.button-danger {
+  background: var(--color-error);
+  color: white;
+}
+
+.button-danger:hover {
+  background: color-mix(in srgb, var(--color-error) 85%, black);
+}
+
+/* Action positive (ex : Marquer comme terminée) */
+.button-success {
+  background: var(--color-success);
+  color: white;
+}
+
+.button-success:hover {
+  background: color-mix(in srgb, var(--color-success) 85%, black);
 }
 
 /* Petite icône affichée avant le texte d'un titre de section (h2) */

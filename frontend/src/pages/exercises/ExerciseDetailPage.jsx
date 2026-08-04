@@ -70,9 +70,9 @@ function ExerciseDetailPage() {
       {illustrationImage}
       {videoPlayer}
 
-      <div>
-        <Link to={`/exercises/${id}/edit`}>Modifier</Link>
-        <button onClick={handleDelete}>Supprimer</button>
+      <div className="exercise-card-actions">
+        <Link to={`/exercises/${id}/edit`} className="button-warning">Modifier</Link>
+        <button onClick={handleDelete} className="button-danger">Supprimer</button>
       </div>
     </div>
   );

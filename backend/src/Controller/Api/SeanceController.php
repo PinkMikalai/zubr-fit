@@ -3,8 +3,10 @@
 namespace App\Controller\Api;
 
 use App\Entity\Seance;
+use App\Entity\SeanceExercise;
 use App\Entity\SeanceUser;
 use App\Entity\User;
+use App\Enum\Level;
 use App\Repository\SeanceRepository;
 use App\Repository\SeanceUserRepository;
 use App\Service\ValidationService;
@@ -37,9 +39,9 @@ final class SeanceController extends AbstractController
             ], 401);
         }
 
-        $data = $this->seanceRepository->findAllByUserDESC($user);
+        $seances = $this->seanceRepository->findAllByUserDESC($user);
 
-        if (!$data) {
+        if (!$seances) {
             return $this->json([
                 'status' => false,
                 'data' => null,
@@ -49,7 +51,7 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $data,
+            'data' => array_map($this->serializeListItem(...), $seances),
             'message' => 'Seances fetched successfully'
         ]);
     }
@@ -90,10 +92,27 @@ final class SeanceController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['level']) || empty($data['level'])) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Le niveau est obligatoire'
+            ], 400);
+        }
+
         $seance = new Seance();
         $seance->setName($data['name']);
         $seance->setDuration((int)$data['duration']);
         $seance->setComment($data['comment'] ?? null);
+
+        try {
+            $seance->setLevel(Level::from($data['level']));
+        } catch (\ValueError $e) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Invalid level value',
+                'error' => $e->getMessage()
+            ], 400);
+        }
 
         $errorResponse = $this->validationService->getErrorResponse($seance);
         if ($errorResponse) {
@@ -191,6 +210,18 @@ final class SeanceController extends AbstractController
         $seance->setDuration($data['duration'] ?? $seance->getDuration());
         $seance->setComment($data['comment'] ?? $seance->getComment());
 
+        if (isset($data['level'])) {
+            try {
+                $seance->setLevel(Level::from($data['level']));
+            } catch (\ValueError $e) {
+                return $this->json([
+                    'status' => false,
+                    'message' => 'Invalid level value',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
+        }
+
         $errorResponse = $this->validationService->getErrorResponse($seance);
         if ($errorResponse) {
             return $errorResponse;
@@ -231,6 +262,18 @@ final class SeanceController extends AbstractController
                 'status' => false,
                 'message' => 'Access denied'
             ], 403);
+        }
+
+        // On supprime d'abord les exercices et les assignations liés à la séance : la base de données
+        // refuserait sinon de supprimer la séance à cause des clés étrangères (pas de cascade en base).
+        $exerciseLines = $this->em->getRepository(SeanceExercise::class)->findBy(['seance' => $seance]);
+        foreach ($exerciseLines as $exerciseLine) {
+            $this->em->remove($exerciseLine);
+        }
+
+        $seanceUsers = $this->seanceUserRepository->findBy(['seance' => $seance]);
+        foreach ($seanceUsers as $seanceUser) {
+            $this->em->remove($seanceUser);
         }
 
         $this->em->remove($seance);
@@ -418,12 +461,100 @@ final class SeanceController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/assignees', name: 'seance_assignees', methods: ['GET'])]
+    public function assignees(int $id): JsonResponse
+    {
+        $coach = $this->getUser();
+
+        if (!$coach instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Only coaches can see who a seance is assigned to'
+            ], 403);
+        }
+
+        $seance = $this->em->getRepository(Seance::class)->find($id);
+
+        if (!$seance) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Seance not found'
+            ], 404);
+        }
+
+        if (!$this->isLinked($seance, $coach)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'You can only see clients of your own seances'
+            ], 403);
+        }
+
+        return $this->json([
+            'status' => true,
+            'data' => array_map($this->serializeClient(...), $this->findAssignedClients($seance)),
+            'message' => 'Assigned clients fetched successfully'
+        ]);
+    }
+
     /**
      * Vérifie si un utilisateur est lié à une séance (créateur ou assigné).
      */
     private function isLinked(Seance $seance, User $user): bool
     {
         return $this->seanceUserRepository->count(['seance' => $seance, 'user' => $user]) > 0;
+    }
+
+    /**
+     * Les clients assignés à une séance : tous les utilisateurs liés, sauf les coachs
+     * (le coach créateur est lui aussi lié à sa séance, mais ce n'est pas un "client assigné").
+     *
+     * @return User[]
+     */
+    private function findAssignedClients(Seance $seance): array
+    {
+        $clients = [];
+
+        foreach ($this->seanceUserRepository->findBy(['seance' => $seance]) as $seanceUser) {
+            $linkedUser = $seanceUser->getUser();
+            if (!in_array('ROLE_COACH', $linkedUser->getRoles(), true)) {
+                $clients[] = $linkedUser;
+            }
+        }
+
+        return $clients;
+    }
+
+    private function serializeClient(User $user): array
+    {
+        return [
+            'id' => $user->getId(),
+            'firstname' => $user->getFirstname(),
+            'lastname' => $user->getLastname(),
+            'email' => $user->getEmail(),
+            'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null,
+        ];
+    }
+
+    private function serializeListItem(Seance $seance): array
+    {
+        return [
+            'id' => $seance->getId(),
+            'name' => $seance->getName(),
+            'duration' => $seance->getDuration(),
+            'comment' => $seance->getComment(),
+            'level' => $seance->getLevel()?->value,
+            'completedAt' => $seance->getCompletedAt()?->format('Y-m-d H:i:s'),
+            'createdAt' => $seance->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'updatedAt' => $seance->getUpdatedAt()?->format('Y-m-d H:i:s'),
+            'assigneeCount' => count($this->findAssignedClients($seance)),
+        ];
     }
 
     /**

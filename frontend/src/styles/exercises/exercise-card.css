@@ -1,7 +1,12 @@
-/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card.
+   La carte est un <article> : illustration en haut, puis un corps qui contient le texte
+   et le <footer> d'actions (coach), poussé en bas de la carte avec margin-top: auto. */
 .exercise-card {
   padding: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .exercise-card-illustration {
@@ -24,6 +29,9 @@
 
 .exercise-card-body {
   padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .exercise-card h3 {
@@ -33,4 +41,18 @@
 .exercise-card-badges {
   display: flex;
   gap: var(--space-xs);
+}
+
+.exercise-card-footer {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
+.exercise-card-footer a,
+.exercise-card-footer button {
+  flex: 1;
+  justify-content: center;
+  font-size: 13px;
 }

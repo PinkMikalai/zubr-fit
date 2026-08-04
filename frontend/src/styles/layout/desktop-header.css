@@ -22,38 +22,11 @@
   margin-left: auto;
 }
 
-.header-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 320px;
-}
-
-.header-search-icon {
-  position: absolute;
-  left: var(--space-sm);
-  width: 16px;
-  height: 16px;
-  pointer-events: none;
-}
-
-.header-search input {
-  width: 100%;
-  padding-left: calc(var(--space-sm) * 2 + 16px);
-  background: var(--color-background);
-  border-color: transparent;
-}
-
-.header-search input:focus {
-  background: var(--color-surface);
-  border-color: var(--color-primary);
-}
-
 .header-date {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  margin-left: auto;
   background: var(--color-primary-light);
   color: var(--color-primary);
   padding: var(--space-xs) var(--space-md);
