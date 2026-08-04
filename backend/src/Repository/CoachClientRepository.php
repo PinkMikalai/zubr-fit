@@ -49,4 +49,17 @@ class CoachClientRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    // Active OU terminée : pour vérifier qu'un client a un jour appartenu à ce coach
+    // (utilisé pour autoriser la consultation d'un profil, y compris depuis l'historique)
+    public function findRelation(User $coach, User $client): ?CoachClient
+    {
+        return $this->createQueryBuilder('cc')
+            ->where('cc.coach = :coach')
+            ->andWhere('cc.client = :client')
+            ->setParameter('coach', $coach)
+            ->setParameter('client', $client)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }
