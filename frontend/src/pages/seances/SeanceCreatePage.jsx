@@ -398,7 +398,7 @@ function SeanceCreatePage() {
   }
 
   return (
-    <div className="seance-create-page">
+    <div className="form-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>
@@ -409,9 +409,9 @@ function SeanceCreatePage() {
       <p className="page-subtitle">Conçois un programme précis pour tes clients.</p>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="seance-create-grid">
-          <div className="seance-create-column">
-            <section className="card seance-create-section">
+        <div className="form-page-grid">
+          <div className="form-page-column">
+            <section className="card form-page-section">
               <h2><img src={infoIcon} alt="" className="section-icon" />Informations générales</h2>
 
               <div>
@@ -457,8 +457,8 @@ function SeanceCreatePage() {
               </div>
             </section>
 
-            <section className="card seance-create-section">
-              <div className="seance-create-section-header">
+            <section className="card form-page-section">
+              <div className="form-page-section-header">
                 <h2><img src={usersIcon} alt="" className="section-icon" />Assigner à des clients</h2>
                 <button type="button" onClick={toggleSelectAllClients} className="link-button">
                   {selectAllText}
@@ -478,8 +478,8 @@ function SeanceCreatePage() {
             </section>
           </div>
 
-          <div className="seance-create-column">
-            <section className="card seance-create-section">
+          <div className="form-page-column">
+            <section className="card form-page-section">
               <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
               {linesList}
               {pickerForm}

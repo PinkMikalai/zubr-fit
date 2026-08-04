@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Level;
 use App\Repository\ExerciseRepository;
+use App\Repository\SeanceExerciseRepository;
 use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +23,8 @@ final class ExerciseController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validationService,
         private ExerciseRepository $exerciseRepository,
-        private MediaUploader $mediaUploader
+        private MediaUploader $mediaUploader,
+        private SeanceExerciseRepository $seanceExerciseRepository
     ) {
     }
 
@@ -378,6 +380,18 @@ final class ExerciseController extends AbstractController
                 'status' => false,
                 'message' => 'Access denied'
             ], 403);
+        }
+
+        // Contrairement à la suppression d'une séance (où les lignes lui appartiennent),
+        // un exercice est partagé par plusieurs séances : le supprimer en cascade retirerait
+        // silencieusement du contenu à des séances (potentiellement déjà assignées à des clients).
+        // On bloque donc la suppression tant que l'exercice est utilisé quelque part.
+        $usageCount = $this->seanceExerciseRepository->count(['exercise' => $exercise]);
+        if ($usageCount > 0) {
+            return $this->json([
+                'status' => false,
+                'message' => "Cet exercice est utilisé dans $usageCount séance(s). Retire-le de ces séances avant de le supprimer."
+            ], 409);
         }
 
         if ($exercise->getIllustration()) {

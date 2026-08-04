@@ -185,7 +185,7 @@ function SeanceFormPage() {
   }
 
   return (
-    <div className="seance-create-page">
+    <div className="form-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>
@@ -194,15 +194,15 @@ function SeanceFormPage() {
 
       <h1>Modifier la séance</h1>
 
-      <div className="seance-create-grid">
-        <div className="seance-create-column">
-          <section className="card seance-create-section">
+      <div className="form-page-grid">
+        <div className="form-page-column">
+          <section className="card form-page-section">
             <h2><img src={infoIcon} alt="" className="section-icon" />Informations générales</h2>
             <SeanceForm initialValues={initialValues} onSubmit={handleSubmit} submitting={submitting} error={error} />
             {successParagraph}
           </section>
 
-          <section className="card seance-create-section">
+          <section className="card form-page-section">
             <h2><img src={usersIcon} alt="" className="section-icon" />Assigner à des clients</h2>
 
             <div className="card seance-assignees-block">
@@ -214,8 +214,8 @@ function SeanceFormPage() {
           </section>
         </div>
 
-        <div className="seance-create-column">
-          <section className="card seance-create-section">
+        <div className="form-page-column">
+          <section className="card form-page-section">
             <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
             {exercisesList}
             <AddSeanceExerciseForm onAdd={handleAddExercise} />

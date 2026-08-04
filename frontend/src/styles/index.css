@@ -12,6 +12,7 @@
 @import './reset.css';
 @import './base.css';
 @import './forms.css';
+@import './form-page.css';
 
 @import './layout/nav-links.css';
 @import './layout/sidebar.css';
@@ -29,6 +30,7 @@
 
 @import './exercises/exercise-card.css';
 @import './exercises/exercises-page.css';
+@import './exercises/exercise-detail-page.css';
 
 @import './seances/seance-card.css';
 @import './seances/seances-page.css';

@@ -1,0 +1,68 @@
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.exercise-detail-card {
+  padding: 0;
+  overflow: hidden;
+  max-width: 640px;
+}
+
+.exercise-detail-illustration {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  background: var(--color-primary-light);
+}
+
+.exercise-detail-illustration-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.exercise-detail-illustration-placeholder img {
+  width: 48px;
+  height: 48px;
+}
+
+.exercise-detail-body {
+  padding: var(--space-md);
+}
+
+.exercise-detail-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.exercise-detail-title-row h1 {
+  margin-bottom: 0;
+}
+
+.exercise-detail-badges {
+  display: flex;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.exercise-detail-video {
+  margin-top: var(--space-md);
+}
+
+.exercise-detail-video-label {
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.exercise-detail-video video {
+  width: 100%;
+  max-width: 400px;
+  border-radius: var(--radius);
+}
+
+.exercise-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
