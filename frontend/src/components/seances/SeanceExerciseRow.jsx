@@ -141,6 +141,30 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
     );
   }
 
+  // La description ("quoi faire") et la vidéo de démonstration ne sont affichées qu'en mode consultation,
+  // pas pendant l'édition des séries/répétitions.
+  let descriptionSection = null;
+  if (!isEditing && line.exercise.description) {
+    descriptionSection = (
+      <div className="exercise-line-description">
+        <p className="exercise-line-description-label">Quoi faire</p>
+        <p>{line.exercise.description}</p>
+      </div>
+    );
+  }
+
+  let videoSection = null;
+  if (!isEditing && line.exercise.video) {
+    videoSection = (
+      <div className="exercise-line-video">
+        <p className="exercise-line-video-label">Vidéo de démonstration</p>
+        <video controls src={`${API_URL}/uploads/videos/${line.exercise.video}`}>
+          <track kind="captions" />
+        </video>
+      </div>
+    );
+  }
+
   return (
     <li className="card exercise-line">
       {reorderButtons}
@@ -149,6 +173,8 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
         {footerContent}
         {actionButtons}
       </div>
+      {descriptionSection}
+      {videoSection}
     </li>
   );
 }

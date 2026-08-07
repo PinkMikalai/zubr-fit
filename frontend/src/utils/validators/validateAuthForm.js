@@ -1,5 +1,23 @@
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Règles du mot de passe, utilisées à l'inscription ET à la modification du profil.
+// On vérifie dans l'ordre pour ne montrer qu'un seul message à la fois.
+function getPasswordError(password) {
+  if (password.length < 6) {
+    return 'Le mot de passe doit contenir au moins 6 caractères';
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return 'Le mot de passe doit contenir au moins une majuscule';
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return 'Le mot de passe doit contenir au moins un chiffre';
+  }
+
+  return null;
+}
+
 export function validateLoginForm({ email, password }) {
   const errors = {};
 
@@ -24,8 +42,9 @@ export function validateRegisterForm({ email, password, confirmPassword, firstna
   const errors = validateLoginForm({ email, password });
 
   if (password) {
-    if (password.length < 6) {
-      errors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      errors.password = passwordError;
     }
   }
 
@@ -80,8 +99,9 @@ export function validateEditProfileForm({ email, password, confirmPassword, firs
   }
 
   if (password) {
-    if (password.length < 6) {
-      errors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      errors.password = passwordError;
     }
 
     if (!confirmPassword) {

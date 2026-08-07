@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CATEGORY_OPTIONS, LEVEL_OPTIONS } from '../../utils/exerciseLabels';
+import { validateExerciseForm } from '../../utils/validators/validateExerciseForm';
 
 // Calcule les valeurs de départ du formulaire à partir de l'exercice existant (si on est en édition)
 function getInitialFormValues(initialValues) {
@@ -39,6 +40,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
   const [form, setForm] = useState(getInitialFormValues(initialValues));
   const [illustration, setIllustration] = useState(null);
   const [video, setVideo] = useState(null);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -46,10 +48,38 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const validationErrors = validateExerciseForm(form);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     onSubmit({ ...form, illustration, video });
   };
 
-  // On prépare le message d'erreur AVANT le return, avec un if classique
+  // On prépare chaque message d'erreur AVANT le return, avec des if classiques
+  let nameErrorMessage = null;
+  if (errors.name) {
+    nameErrorMessage = <p className="form-error">{errors.name}</p>;
+  }
+
+  let descriptionErrorMessage = null;
+  if (errors.description) {
+    descriptionErrorMessage = <p className="form-error">{errors.description}</p>;
+  }
+
+  let categoryErrorMessage = null;
+  if (errors.category) {
+    categoryErrorMessage = <p className="form-error">{errors.category}</p>;
+  }
+
+  let levelErrorMessage = null;
+  if (errors.level) {
+    levelErrorMessage = <p className="form-error">{errors.level}</p>;
+  }
+
   let errorMessage = null;
   if (error) {
     errorMessage = <p className="form-error">{error}</p>;
@@ -66,6 +96,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="name">Nom</label>
         <input id="name" name="name" placeholder="Ex : Squat" value={form.name} onChange={handleChange} />
+        {nameErrorMessage}
       </div>
 
       <div>
@@ -77,6 +108,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
           value={form.description}
           onChange={handleChange}
         />
+        {descriptionErrorMessage}
       </div>
 
       <div>
@@ -89,6 +121,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
             </option>
           ))}
         </select>
+        {categoryErrorMessage}
       </div>
 
       <div>
@@ -101,6 +134,7 @@ function ExerciseForm({ initialValues, onSubmit, submitting, error }) {
             </option>
           ))}
         </select>
+        {levelErrorMessage}
       </div>
 
       <div>

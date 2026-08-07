@@ -224,6 +224,7 @@ final class SeanceExerciseController extends AbstractController
             'exercise' => [
                 'id' => $exercise->getId(),
                 'name' => $exercise->getName(),
+                'description' => $exercise->getDescription(),
                 'category' => $exercise->getCategory()?->value,
                 'level' => $exercise->getLevel()?->value,
                 'illustration' => $exercise->getIllustration(),

@@ -1,0 +1,97 @@
+/*
+  Mise en page générique "page avec fil d'Ariane + cartes de formulaire", partagée par les pages
+  de création/édition de séances ET d'exercices (voir SeanceCreatePage, SeanceFormPage,
+  ExerciseFormPage, ExerciseDetailPage). Le contenu spécifique à une séance (structure des
+  exercices, sélection de clients...) reste dans styles/seances/seance-create-page.css.
+*/
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 13px;
+  margin-bottom: var(--space-md);
+}
+
+.breadcrumb a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: var(--color-text-light);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.breadcrumb-current {
+  color: var(--color-text-light);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pour les pages qui n'ont qu'une seule carte (ex : modifier un exercice), pas besoin
+   de toute la largeur desktop */
+.form-page-narrow {
+  max-width: 480px;
+}
+
+/* Deux colonnes à partir de la largeur desktop, une seule colonne en dessous */
+.form-page-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 900px) {
+  .form-page form {
+    max-width: none;
+  }
+
+  .form-page-grid {
+    grid-template-columns: 1fr 1.2fr;
+    align-items: start;
+  }
+}
+
+.form-page-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
+.form-page-section {
+  margin-bottom: 0;
+}
+
+.form-page-section > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.form-page-section > div:last-child {
+  margin-bottom: 0;
+}
+
+.form-page-section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.form-page-section-header h2 {
+  margin-bottom: 0;
+}

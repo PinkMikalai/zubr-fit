@@ -42,4 +42,23 @@ class ValidationService
             'errors' => $errors
         ], 422);
     }
+
+    // Règles du mot de passe, partagées entre l'inscription et la modification du profil.
+    // On vérifie dans l'ordre pour ne renvoyer qu'un seul message à la fois.
+    public function getPasswordError(string $password): ?string
+    {
+        if (strlen($password) < 6) {
+            return 'Le mot de passe doit contenir au moins 6 caractères';
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            return 'Le mot de passe doit contenir au moins une majuscule';
+        }
+
+        if (!preg_match('/[0-9]/', $password)) {
+            return 'Le mot de passe doit contenir au moins un chiffre';
+        }
+
+        return null;
+    }
 }

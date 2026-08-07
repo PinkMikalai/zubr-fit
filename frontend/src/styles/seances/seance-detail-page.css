@@ -185,12 +185,15 @@
 @media (min-width: 700px) {
   .exercise-line {
     display: flex;
-    align-items: stretch;
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
 
+  /* Hauteur fixe égale à la largeur : la vignette reste carrée quelle que soit la hauteur
+     du texte à côté (nom/tags/stats), au lieu d'être étirée et donc mal cadrée */
   .exercise-line-thumbnail {
     width: 110px;
-    height: auto;
+    height: 110px;
     flex-shrink: 0;
   }
 
@@ -226,6 +229,39 @@
 
 .exercise-line-edit-fields span {
   color: var(--color-text-light);
+}
+
+/* Description ("quoi faire") et vidéo de démonstration : toujours en pleine largeur en bas de carte,
+   même à partir de 700px où la carte passe en ligne (vignette + footer côte à côte) */
+.exercise-line-description,
+.exercise-line-video {
+  width: 100%;
+  padding: 0 var(--space-md) var(--space-sm);
+}
+
+.exercise-line-description {
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.exercise-line-description-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: var(--space-xs);
+}
+
+.exercise-line-video-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-xs);
+}
+
+.exercise-line-video video {
+  width: 100%;
+  border-radius: var(--radius);
 }
 
 /* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */

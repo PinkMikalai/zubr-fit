@@ -172,10 +172,11 @@ final class UserController extends AbstractController
         }
 
         if (isset($data['password']) && !empty($data['password'])) {
-            if (strlen($data['password']) < 6) {
+            $passwordError = $this->validationService->getPasswordError($data['password']);
+            if ($passwordError) {
                 return $this->json([
                     'status' => false,
-                    'message' => 'Le mot de passe doit contenir au moins 6 caractères'
+                    'message' => $passwordError
                 ], 400);
             }
 

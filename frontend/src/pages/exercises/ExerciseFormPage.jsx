@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import ExerciseForm from '../../components/exercises/ExerciseForm';
 import exerciseService from '../../services/exerciseService';
+import infoIcon from '../../assets/icons/info.svg';
 
 function ExerciseFormPage() {
   const { id } = useParams();
@@ -59,9 +60,19 @@ function ExerciseFormPage() {
   }
 
   return (
-    <div>
+    <div className="form-page">
+      <nav className="breadcrumb">
+        <Link to="/exercises">Exercices</Link>
+        <span className="breadcrumb-separator">›</span>
+        <span className="breadcrumb-current">{title}</span>
+      </nav>
+
       <h1>{title}</h1>
-      <ExerciseForm initialValues={initialValues} onSubmit={handleSubmit} submitting={submitting} error={error} />
+
+      <section className="card form-page-section form-page-narrow">
+        <h2><img src={infoIcon} alt="" className="section-icon" />Informations générales</h2>
+        <ExerciseForm initialValues={initialValues} onSubmit={handleSubmit} submitting={submitting} error={error} />
+      </section>
     </div>
   );
 }
