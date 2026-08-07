@@ -7,6 +7,7 @@ use App\Entity\SeanceExercise;
 use App\Entity\SeanceUser;
 use App\Entity\User;
 use App\Enum\Level;
+use App\Repository\CoachClientRepository;
 use App\Repository\SeanceRepository;
 use App\Repository\SeanceUserRepository;
 use App\Service\ValidationService;
@@ -23,8 +24,46 @@ final class SeanceController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validationService,
         private SeanceRepository $seanceRepository,
-        private SeanceUserRepository $seanceUserRepository
+        private SeanceUserRepository $seanceUserRepository,
+        private CoachClientRepository $coachClientRepository
     ) {
+    }
+
+    // Les séances d'un client précis, vues par son coach (page "Voir profil" d'un client).
+    // Déclarée AVANT /{id} pour que "client" ne soit jamais interprété comme un id de séance.
+    #[Route('/client/{clientId}', name: 'seance_by_client', methods: ['GET'], requirements: ['clientId' => '\d+'])]
+    public function byClient(int $clientId): JsonResponse
+    {
+        $coach = $this->getUser();
+        if (!$coach instanceof User) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        $client = $this->em->getRepository(User::class)->find($clientId);
+        if (!$client) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Client not found'
+            ], 404);
+        }
+
+        if (!in_array('ROLE_COACH', $coach->getRoles(), true) || !$this->coachClientRepository->findRelation($coach, $client)) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Access denied'
+            ], 403);
+        }
+
+        $seances = $this->seanceRepository->findAllByUserDESC($client);
+
+        return $this->json([
+            'status' => true,
+            'data' => array_map($this->serializeListItem(...), $seances),
+            'message' => 'Seances fetched successfully'
+        ]);
     }
 
     #[Route('/', name: 'seance_index', methods: ['GET'])]
@@ -134,7 +173,7 @@ final class SeanceController extends AbstractController
         ], 201);
     }
 
-    #[Route('/{id}', name: 'seance_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'seance_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(int $id): JsonResponse
     {
         $user = $this->getUser();

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { LEVEL_OPTIONS } from '../../utils/exerciseLabels';
+import { validateSeanceForm } from '../../utils/validators/validateSeanceForm';
 
 function getInitialFormValues(initialValues) {
   if (!initialValues) {
@@ -26,6 +27,7 @@ function getInitialFormValues(initialValues) {
 
 function SeanceForm({ initialValues, onSubmit, submitting, error }) {
   const [form, setForm] = useState(getInitialFormValues(initialValues));
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -33,8 +35,32 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const validationErrors = validateSeanceForm(form);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     onSubmit(form);
   };
+
+  // On prépare chaque message d'erreur AVANT le return, avec des if classiques
+  let nameErrorMessage = null;
+  if (errors.name) {
+    nameErrorMessage = <p className="form-error">{errors.name}</p>;
+  }
+
+  let durationErrorMessage = null;
+  if (errors.duration) {
+    durationErrorMessage = <p className="form-error">{errors.duration}</p>;
+  }
+
+  let levelErrorMessage = null;
+  if (errors.level) {
+    levelErrorMessage = <p className="form-error">{errors.level}</p>;
+  }
 
   let errorMessage = null;
   if (error) {
@@ -51,6 +77,7 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
       <div>
         <label htmlFor="name">Nom de la séance</label>
         <input id="name" name="name" placeholder="Ex : Séance jambes" value={form.name} onChange={handleChange} />
+        {nameErrorMessage}
       </div>
 
       <div>
@@ -64,6 +91,7 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
           value={form.duration}
           onChange={handleChange}
         />
+        {durationErrorMessage}
       </div>
 
       <div>
@@ -74,6 +102,7 @@ function SeanceForm({ initialValues, onSubmit, submitting, error }) {
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
+        {levelErrorMessage}
       </div>
 
       <div>

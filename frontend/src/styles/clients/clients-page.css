@@ -57,6 +57,18 @@
   margin-bottom: var(--space-md);
 }
 
+/* Sous-titres "En cours" / "Terminées" au-dessus des séances d'un client, sur sa fiche */
+.client-detail-seances-subtitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: var(--space-md) 0 var(--space-sm);
+}
+
+.client-detail-seances-subtitle:first-child {
+  margin-top: 0;
+}
+
 .client-search {
   margin-top: var(--space-lg);
 }

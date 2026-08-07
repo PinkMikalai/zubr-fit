@@ -6,6 +6,7 @@ import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
 import { getCategoryLabel, getLevelLabel, LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 import { useExerciseFilters } from '../../hooks/useExerciseFilters';
+import { validateSeanceForm, validateExerciseLine } from '../../utils/validators/validateSeanceForm';
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
@@ -50,6 +51,8 @@ function SeanceCreatePage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [lineErrors, setLineErrors] = useState({});
 
   useEffect(() => {
     Promise.all([exerciseService.list(), coachClientService.list()])
@@ -62,8 +65,10 @@ function SeanceCreatePage() {
   }, []);
 
   const handleAddLine = () => {
-    if (!pickedExerciseId) {
-      setError('Choisis un exercice à ajouter');
+    const validationErrors = validateExerciseLine({ exerciseId: pickedExerciseId, sets: pickedSets, reps: pickedReps });
+    setLineErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -72,7 +77,6 @@ function SeanceCreatePage() {
       return;
     }
 
-    setError(null);
     setLines((prev) => [
       ...prev,
       { tempId: nextTempId++, exerciseId: exercise.id, exercise: exercise, sets: pickedSets, reps: pickedReps },
@@ -127,8 +131,10 @@ function SeanceCreatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name) {
-      setError('Le nom de la séance est requis');
+    const validationErrors = validateSeanceForm({ name, duration, level });
+    setFormErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -178,6 +184,38 @@ function SeanceCreatePage() {
     errorMessage = <p className="form-error">{error}</p>;
   }
 
+  // Messages d'erreur du formulaire "Informations générales", un par champ
+  let nameErrorMessage = null;
+  if (formErrors.name) {
+    nameErrorMessage = <p className="form-error">{formErrors.name}</p>;
+  }
+
+  let durationErrorMessage = null;
+  if (formErrors.duration) {
+    durationErrorMessage = <p className="form-error">{formErrors.duration}</p>;
+  }
+
+  let levelErrorMessage = null;
+  if (formErrors.level) {
+    levelErrorMessage = <p className="form-error">{formErrors.level}</p>;
+  }
+
+  // Messages d'erreur du formulaire d'ajout d'exercice (picker), un par champ
+  let exerciseIdErrorMessage = null;
+  if (lineErrors.exerciseId) {
+    exerciseIdErrorMessage = <p className="form-error">{lineErrors.exerciseId}</p>;
+  }
+
+  let setsErrorMessage = null;
+  if (lineErrors.sets) {
+    setsErrorMessage = <p className="form-error">{lineErrors.sets}</p>;
+  }
+
+  let repsErrorMessage = null;
+  if (lineErrors.reps) {
+    repsErrorMessage = <p className="form-error">{lineErrors.reps}</p>;
+  }
+
   // On calcule le volume total (somme des séries) et le "Tout sélectionner", AVANT le return
   let totalSets = 0;
   lines.forEach((line) => {
@@ -211,6 +249,7 @@ function SeanceCreatePage() {
             <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
           ))}
         </select>
+        {exerciseIdErrorMessage}
         <input
           type="number"
           min="1"
@@ -218,6 +257,7 @@ function SeanceCreatePage() {
           value={pickedSets}
           onChange={(e) => setPickedSets(e.target.value)}
         />
+        {setsErrorMessage}
         <input
           type="number"
           min="1"
@@ -225,6 +265,7 @@ function SeanceCreatePage() {
           value={pickedReps}
           onChange={(e) => setPickedReps(e.target.value)}
         />
+        {repsErrorMessage}
         <div className="seance-create-line-picker-actions">
           <button type="button" onClick={handleAddLine}>Ajouter</button>
           <button type="button" onClick={() => setIsPickerOpen(false)} className="button-secondary">
@@ -398,7 +439,7 @@ function SeanceCreatePage() {
   }
 
   return (
-    <div className="seance-create-page">
+    <div className="form-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>
@@ -409,9 +450,9 @@ function SeanceCreatePage() {
       <p className="page-subtitle">Conçois un programme précis pour tes clients.</p>
 
       <form onSubmit={handleSubmit} noValidate>
-        <div className="seance-create-grid">
-          <div className="seance-create-column">
-            <section className="card seance-create-section">
+        <div className="form-page-grid">
+          <div className="form-page-column">
+            <section className="card form-page-section">
               <h2><img src={infoIcon} alt="" className="section-icon" />Informations générales</h2>
 
               <div>
@@ -422,6 +463,7 @@ function SeanceCreatePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
+                {nameErrorMessage}
               </div>
 
               <div>
@@ -434,6 +476,7 @@ function SeanceCreatePage() {
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                 />
+                {durationErrorMessage}
               </div>
 
               <div>
@@ -444,6 +487,7 @@ function SeanceCreatePage() {
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+                {levelErrorMessage}
               </div>
 
               <div>
@@ -457,8 +501,8 @@ function SeanceCreatePage() {
               </div>
             </section>
 
-            <section className="card seance-create-section">
-              <div className="seance-create-section-header">
+            <section className="card form-page-section">
+              <div className="form-page-section-header">
                 <h2><img src={usersIcon} alt="" className="section-icon" />Assigner à des clients</h2>
                 <button type="button" onClick={toggleSelectAllClients} className="link-button">
                   {selectAllText}
@@ -478,8 +522,8 @@ function SeanceCreatePage() {
             </section>
           </div>
 
-          <div className="seance-create-column">
-            <section className="card seance-create-section">
+          <div className="form-page-column">
+            <section className="card form-page-section">
               <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
               {linesList}
               {pickerForm}

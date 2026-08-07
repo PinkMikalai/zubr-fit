@@ -144,7 +144,7 @@ function SeanceDetailPage() {
   let assignSection = null;
   if (isCoach) {
     assignSection = (
-      <section className="card seance-create-section">
+      <section className="card form-page-section">
         <h2><img src={usersIcon} alt="" className="section-icon" />Clients assignés ({assignees.length})</h2>
         {assigneesList}
         <QuickAssignClients assignees={assignees} onAssign={handleAssign} />
@@ -174,7 +174,7 @@ function SeanceDetailPage() {
   }
 
   const structureSection = (
-    <section className="card seance-create-section">
+    <section className="card form-page-section">
       <h2><img src={dumbbellIcon} alt="" className="section-icon" />Exercices de la séance</h2>
       {exercisesList}
     </section>
@@ -185,11 +185,11 @@ function SeanceDetailPage() {
   let mainContent;
   if (isCoach) {
     mainContent = (
-      <div className="seance-create-grid">
-        <div className="seance-create-column">
+      <div className="form-page-grid">
+        <div className="form-page-column">
           {assignSection}
         </div>
-        <div className="seance-create-column">
+        <div className="form-page-column">
           {structureSection}
         </div>
       </div>
@@ -199,7 +199,7 @@ function SeanceDetailPage() {
   }
 
   return (
-    <div className="seance-create-page">
+    <div className="form-page">
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>

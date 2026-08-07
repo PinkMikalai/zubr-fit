@@ -1,3 +1,17 @@
+.exercises-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.exercises-page-header .page-description {
+  color: var(--color-text-light);
+  margin-top: var(--space-xs);
+  max-width: 480px;
+}
+
 .exercise-filter-bar {
   display: flex;
   flex-wrap: wrap;

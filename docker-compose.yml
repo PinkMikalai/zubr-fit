@@ -33,6 +33,9 @@ services:
       - db
     environment:
       DATABASE_URL: "mysql://zubr_fit:zubr_fit@db:3306/ZubrCoach"
+      # Le serveur PHP intégré traite les requêtes une par une par défaut ;
+      # cette variable lui fait lancer plusieurs workers pour gérer les requêtes en parallèle.
+      PHP_CLI_SERVER_WORKERS: "4"
 
   # ── React ──
   frontend:

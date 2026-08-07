@@ -220,7 +220,7 @@ function RegisterForm() {
             id="password"
             name="password"
             type="password"
-            placeholder="6 caractères minimum"
+            placeholder="6 caractères, 1 majuscule, 1 chiffre"
             value={form.password}
             onChange={handleChange}
           />

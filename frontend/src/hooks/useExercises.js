@@ -24,8 +24,13 @@ export function useExercises() {
   }, [load]);
 
   const remove = async (id) => {
-    await exerciseService.remove(id);
-    setExercises((prev) => prev.filter((exercise) => exercise.id !== id));
+    setError(null);
+    try {
+      await exerciseService.remove(id);
+      setExercises((prev) => prev.filter((exercise) => exercise.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return { exercises, loading, error, reload: load, remove };

@@ -46,8 +46,14 @@ function ExercisesPage() {
 
   return (
     <div>
-      <h1>Mes exercices</h1>
-      <Link to="/exercises/new">Nouvel exercice</Link>
+      <div className="exercises-page-header">
+        <div>
+          <h1>Mes exercices</h1>
+          <p className="page-description">Gère la bibliothèque d'exercices que tu utilises dans tes séances.</p>
+        </div>
+        <Link to="/exercises/new" className="button-primary">Nouvel exercice</Link>
+      </div>
+
       {errorMessage}
       {filterBar}
       {content}

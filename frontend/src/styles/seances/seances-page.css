@@ -14,17 +14,27 @@
 
 .seance-filter-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm);
   margin-top: var(--space-md);
 }
 
-.seance-filter-bar label {
-  font-weight: 600;
-  font-size: 14px;
+.seance-filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
 }
 
-.seance-filter-bar select {
+.seance-filter-group label {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.seance-filter-group select {
+  flex: 1;
   min-width: 160px;
 }
 
