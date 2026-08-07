@@ -74,6 +74,16 @@ const seanceService = {
     }
     return data.data;
   },
+
+  // Les séances d'un client précis, vues par son coach (page "Voir profil" d'un client)
+  async getByClientId(clientId) {
+    const data = await api(`/seance/client/${clientId}`, { token: authService.getToken() });
+
+    if (!data.data) {
+      return [];
+    }
+    return data.data;
+  },
 };
 
 export default seanceService;

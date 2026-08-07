@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
 import { useExerciseFilters } from '../../hooks/useExerciseFilters';
 import ExerciseFilterBar from '../exercises/ExerciseFilterBar';
+import { validateExerciseLine } from '../../utils/validators/validateSeanceForm';
 
 function AddSeanceExerciseForm({ onAdd }) {
   const [exercises, setExercises] = useState([]);
@@ -12,6 +13,7 @@ function AddSeanceExerciseForm({ onAdd }) {
   const [reps, setReps] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
   const exerciseFilters = useExerciseFilters(exercises);
 
   useEffect(() => {
@@ -25,8 +27,10 @@ function AddSeanceExerciseForm({ onAdd }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!exerciseId) {
-      setError('Choisis un exercice');
+    const validationErrors = validateExerciseLine({ exerciseId, sets, reps });
+    setFieldErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -43,6 +47,22 @@ function AddSeanceExerciseForm({ onAdd }) {
       setSubmitting(false);
     }
   };
+
+  // On prépare chaque message d'erreur AVANT le return, avec des if classiques
+  let exerciseIdErrorMessage = null;
+  if (fieldErrors.exerciseId) {
+    exerciseIdErrorMessage = <p className="form-error">{fieldErrors.exerciseId}</p>;
+  }
+
+  let setsErrorMessage = null;
+  if (fieldErrors.sets) {
+    setsErrorMessage = <p className="form-error">{fieldErrors.sets}</p>;
+  }
+
+  let repsErrorMessage = null;
+  if (fieldErrors.reps) {
+    repsErrorMessage = <p className="form-error">{fieldErrors.reps}</p>;
+  }
 
   let errorMessage = null;
   if (error) {
@@ -89,6 +109,7 @@ function AddSeanceExerciseForm({ onAdd }) {
             </option>
           ))}
         </select>
+        {exerciseIdErrorMessage}
       </div>
 
       <div>
@@ -101,6 +122,7 @@ function AddSeanceExerciseForm({ onAdd }) {
           value={sets}
           onChange={(e) => setSets(e.target.value)}
         />
+        {setsErrorMessage}
       </div>
 
       <div>
@@ -113,6 +135,7 @@ function AddSeanceExerciseForm({ onAdd }) {
           value={reps}
           onChange={(e) => setReps(e.target.value)}
         />
+        {repsErrorMessage}
       </div>
 
       {errorMessage}

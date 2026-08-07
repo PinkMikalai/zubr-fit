@@ -74,6 +74,14 @@ class AuthController extends AbstractController
             ], 400);
         }
 
+        $passwordError = $this->validationService->getPasswordError($data['password']);
+        if ($passwordError) {
+            return $this->json([
+                'status' => false,
+                'message' => $passwordError
+            ], 400);
+        }
+
         $avatarFilename = null;
         if ($avatarFile) {
             $result = $this->mediaUploader->uploadAvatar($avatarFile);

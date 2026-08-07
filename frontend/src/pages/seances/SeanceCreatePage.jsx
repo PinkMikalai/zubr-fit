@@ -6,6 +6,7 @@ import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
 import { getCategoryLabel, getLevelLabel, LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 import { useExerciseFilters } from '../../hooks/useExerciseFilters';
+import { validateSeanceForm, validateExerciseLine } from '../../utils/validators/validateSeanceForm';
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
@@ -62,8 +63,18 @@ function SeanceCreatePage() {
   }, []);
 
   const handleAddLine = () => {
-    if (!pickedExerciseId) {
-      setError('Choisis un exercice à ajouter');
+    const lineErrors = validateExerciseLine({ exerciseId: pickedExerciseId, sets: pickedSets, reps: pickedReps });
+
+    if (lineErrors.exerciseId) {
+      setError(lineErrors.exerciseId);
+      return;
+    }
+    if (lineErrors.sets) {
+      setError(lineErrors.sets);
+      return;
+    }
+    if (lineErrors.reps) {
+      setError(lineErrors.reps);
       return;
     }
 
@@ -127,8 +138,17 @@ function SeanceCreatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name) {
-      setError('Le nom de la séance est requis');
+    const formErrors = validateSeanceForm({ name, duration, level });
+    if (formErrors.name) {
+      setError(formErrors.name);
+      return;
+    }
+    if (formErrors.duration) {
+      setError(formErrors.duration);
+      return;
+    }
+    if (formErrors.level) {
+      setError(formErrors.level);
       return;
     }
 

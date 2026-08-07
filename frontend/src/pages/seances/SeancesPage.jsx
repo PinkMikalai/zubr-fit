@@ -85,20 +85,24 @@ function SeancesPage() {
       </div>
 
       <div className="seance-filter-bar">
-        <label htmlFor="statusFilter">Statut</label>
-        <select id="statusFilter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="all">Tous</option>
-          <option value="ongoing">En cours</option>
-          <option value="completed">Terminée</option>
-        </select>
+        <div className="seance-filter-group">
+          <label htmlFor="statusFilter">Statut</label>
+          <select id="statusFilter" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="all">Tous</option>
+            <option value="ongoing">En cours</option>
+            <option value="completed">Terminée</option>
+          </select>
+        </div>
 
-        <label htmlFor="levelFilter">Niveau</label>
-        <select id="levelFilter" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
-          <option value="">Tous les niveaux</option>
-          {LEVEL_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
-          ))}
-        </select>
+        <div className="seance-filter-group">
+          <label htmlFor="levelFilter">Niveau</label>
+          <select id="levelFilter" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
+            <option value="">Tous les niveaux</option>
+            {LEVEL_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {errorMessage}
