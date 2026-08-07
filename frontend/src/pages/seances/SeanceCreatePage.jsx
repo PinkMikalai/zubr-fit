@@ -51,6 +51,8 @@ function SeanceCreatePage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+  const [lineErrors, setLineErrors] = useState({});
 
   useEffect(() => {
     Promise.all([exerciseService.list(), coachClientService.list()])
@@ -63,18 +65,10 @@ function SeanceCreatePage() {
   }, []);
 
   const handleAddLine = () => {
-    const lineErrors = validateExerciseLine({ exerciseId: pickedExerciseId, sets: pickedSets, reps: pickedReps });
+    const validationErrors = validateExerciseLine({ exerciseId: pickedExerciseId, sets: pickedSets, reps: pickedReps });
+    setLineErrors(validationErrors);
 
-    if (lineErrors.exerciseId) {
-      setError(lineErrors.exerciseId);
-      return;
-    }
-    if (lineErrors.sets) {
-      setError(lineErrors.sets);
-      return;
-    }
-    if (lineErrors.reps) {
-      setError(lineErrors.reps);
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -83,7 +77,6 @@ function SeanceCreatePage() {
       return;
     }
 
-    setError(null);
     setLines((prev) => [
       ...prev,
       { tempId: nextTempId++, exerciseId: exercise.id, exercise: exercise, sets: pickedSets, reps: pickedReps },
@@ -138,17 +131,10 @@ function SeanceCreatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formErrors = validateSeanceForm({ name, duration, level });
-    if (formErrors.name) {
-      setError(formErrors.name);
-      return;
-    }
-    if (formErrors.duration) {
-      setError(formErrors.duration);
-      return;
-    }
-    if (formErrors.level) {
-      setError(formErrors.level);
+    const validationErrors = validateSeanceForm({ name, duration, level });
+    setFormErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
       return;
     }
 
@@ -198,6 +184,38 @@ function SeanceCreatePage() {
     errorMessage = <p className="form-error">{error}</p>;
   }
 
+  // Messages d'erreur du formulaire "Informations générales", un par champ
+  let nameErrorMessage = null;
+  if (formErrors.name) {
+    nameErrorMessage = <p className="form-error">{formErrors.name}</p>;
+  }
+
+  let durationErrorMessage = null;
+  if (formErrors.duration) {
+    durationErrorMessage = <p className="form-error">{formErrors.duration}</p>;
+  }
+
+  let levelErrorMessage = null;
+  if (formErrors.level) {
+    levelErrorMessage = <p className="form-error">{formErrors.level}</p>;
+  }
+
+  // Messages d'erreur du formulaire d'ajout d'exercice (picker), un par champ
+  let exerciseIdErrorMessage = null;
+  if (lineErrors.exerciseId) {
+    exerciseIdErrorMessage = <p className="form-error">{lineErrors.exerciseId}</p>;
+  }
+
+  let setsErrorMessage = null;
+  if (lineErrors.sets) {
+    setsErrorMessage = <p className="form-error">{lineErrors.sets}</p>;
+  }
+
+  let repsErrorMessage = null;
+  if (lineErrors.reps) {
+    repsErrorMessage = <p className="form-error">{lineErrors.reps}</p>;
+  }
+
   // On calcule le volume total (somme des séries) et le "Tout sélectionner", AVANT le return
   let totalSets = 0;
   lines.forEach((line) => {
@@ -231,6 +249,7 @@ function SeanceCreatePage() {
             <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
           ))}
         </select>
+        {exerciseIdErrorMessage}
         <input
           type="number"
           min="1"
@@ -238,6 +257,7 @@ function SeanceCreatePage() {
           value={pickedSets}
           onChange={(e) => setPickedSets(e.target.value)}
         />
+        {setsErrorMessage}
         <input
           type="number"
           min="1"
@@ -245,6 +265,7 @@ function SeanceCreatePage() {
           value={pickedReps}
           onChange={(e) => setPickedReps(e.target.value)}
         />
+        {repsErrorMessage}
         <div className="seance-create-line-picker-actions">
           <button type="button" onClick={handleAddLine}>Ajouter</button>
           <button type="button" onClick={() => setIsPickerOpen(false)} className="button-secondary">
@@ -442,6 +463,7 @@ function SeanceCreatePage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
+                {nameErrorMessage}
               </div>
 
               <div>
@@ -454,6 +476,7 @@ function SeanceCreatePage() {
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
                 />
+                {durationErrorMessage}
               </div>
 
               <div>
@@ -464,6 +487,7 @@ function SeanceCreatePage() {
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+                {levelErrorMessage}
               </div>
 
               <div>
