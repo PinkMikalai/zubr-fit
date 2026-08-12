@@ -1,27 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useFetchList } from './useFetchList';
 import exerciseService from '../services/exerciseService';
 
 export function useExercises() {
-  const [exercises, setExercises] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await exerciseService.list();
-      setExercises(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { items: exercises, setItems: setExercises, loading, error, setError, reload } = useFetchList(exerciseService.list);
 
   const remove = async (id) => {
     setError(null);
@@ -33,5 +14,5 @@ export function useExercises() {
     }
   };
 
-  return { exercises, loading, error, reload: load, remove };
+  return { exercises, loading, error, reload, remove };
 }

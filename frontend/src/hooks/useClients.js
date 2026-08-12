@@ -1,27 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useFetchList } from './useFetchList';
 import coachClientService from '../services/coachClientService';
 
 export function useClients() {
-  const [clients, setClients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await coachClientService.list();
-      setClients(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { items: clients, setItems: setClients, loading, error, reload } = useFetchList(coachClientService.list);
 
   const add = async (clientId) => {
     const newCoachClient = await coachClientService.add(clientId);
@@ -33,5 +14,5 @@ export function useClients() {
     setClients((prev) => prev.filter((coachClient) => coachClient.id !== id));
   };
 
-  return { clients, loading, error, reload: load, add, remove };
+  return { clients, loading, error, reload, add, remove };
 }

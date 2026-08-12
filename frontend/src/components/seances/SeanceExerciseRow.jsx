@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import dumbbellIcon from '../../assets/icons/dumbbell.svg';
+import ExerciseThumbnail from '../exercises/ExerciseThumbnail';
 import trashIcon from '../../assets/icons/trash.svg';
 import pencilIcon from '../../assets/icons/pencil.svg';
 import chevronUpIcon from '../../assets/icons/chevron-up.svg';
@@ -8,46 +8,42 @@ import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Le commentaire est optionnel : le backend peut renvoyer null, mais un textarea contrôlé
+// a besoin d'une chaîne vide, jamais de null/undefined.
+function getCommentValue(comment) {
+  if (!comment) {
+    return '';
+  }
+  return comment;
+}
+
 function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isFirst, isLast }) {
   const [isEditing, setIsEditing] = useState(false);
   const [sets, setSets] = useState(line.sets);
   const [reps, setReps] = useState(line.reps);
+  const [comment, setComment] = useState(getCommentValue(line.comment));
   const [submitting, setSubmitting] = useState(false);
 
   const startEditing = () => {
     setSets(line.sets);
     setReps(line.reps);
+    setComment(getCommentValue(line.comment));
     setIsEditing(true);
   };
 
   const handleSave = async () => {
     setSubmitting(true);
     try {
-      await onUpdate(line.id, { sets: sets, reps: reps });
+      await onUpdate(line.id, { sets: sets, reps: reps, comment: comment });
       setIsEditing(false);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // On prépare la vignette AVANT le return, avec un if/else classique.
-  // S'il n'y a pas d'illustration, on affiche l'icône haltère sur un fond de couleur à la place.
-  let thumbnail;
-  if (line.exercise.illustration) {
-    thumbnail = (
-      <img
-        src={`${API_URL}/uploads/illustrations/${line.exercise.illustration}`}
-        alt=""
-        className="exercise-line-thumbnail"
-      />
-    );
-  } else {
-    thumbnail = (
-      <div className="exercise-line-thumbnail exercise-line-thumbnail-placeholder">
-        <img src={dumbbellIcon} alt="" />
-      </div>
-    );
-  }
+  const thumbnail = (
+    <ExerciseThumbnail illustration={line.exercise.illustration} className="exercise-line-thumbnail" />
+  );
 
   // Les flèches de réordonnancement ne sont affichées que si des gestionnaires ont été fournis (coach uniquement).
   // Le numéro de position est toujours affiché à côté, pour savoir clairement où on en est avant de cliquer.
@@ -112,6 +108,12 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
           <span>x</span>
           <input type="number" min="1" value={reps} onChange={(e) => setReps(e.target.value)} />
         </div>
+        <textarea
+          className="exercise-line-edit-comment"
+          placeholder="Consigne pour cette séance (optionnel)"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
         <div className="exercise-line-edit-fields">
           <button type="button" onClick={handleSave} disabled={submitting}>{saveButtonText}</button>
           <button type="button" onClick={() => setIsEditing(false)} className="button-secondary" disabled={submitting}>
@@ -137,6 +139,18 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
             <span className="exercise-line-stat-value">{line.reps}</span>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Le commentaire est la consigne du coach spécifique à CETTE séance (différent de la description
+  // générique de l'exercice) : on le met en avant avec un style distinct, quand il y en a un.
+  let commentSection = null;
+  if (!isEditing && line.comment) {
+    commentSection = (
+      <div className="exercise-line-comment">
+        <p className="exercise-line-comment-label">Consigne du coach</p>
+        <p>{line.comment}</p>
       </div>
     );
   }
@@ -173,6 +187,7 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
         {footerContent}
         {actionButtons}
       </div>
+      {commentSection}
       {descriptionSection}
       {videoSection}
     </li>

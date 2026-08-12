@@ -49,7 +49,7 @@ function ClientDetailPage() {
     let ongoingList = <p className="hint">Aucune séance en cours.</p>;
     if (ongoingSeances.length > 0) {
       ongoingList = (
-        <ul className="seance-list">
+        <ul className="card-grid">
           {ongoingSeances.map((seance) => (
             <li key={seance.id}>
               <SeanceCard seance={seance} />
@@ -62,7 +62,7 @@ function ClientDetailPage() {
     let completedList = <p className="hint">Aucune séance terminée pour l'instant.</p>;
     if (completedSeances.length > 0) {
       completedList = (
-        <ul className="seance-list">
+        <ul className="card-grid">
           {completedSeances.map((seance) => (
             <li key={seance.id}>
               <SeanceCard seance={seance} />

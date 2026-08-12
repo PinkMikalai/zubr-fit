@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
 import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
-import dumbbellIcon from '../../assets/icons/dumbbell.svg';
+import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -44,25 +44,6 @@ function ExerciseDetailPage() {
     return null;
   }
 
-  // On prépare la vignette AVANT le return, avec un if/else classique.
-  // S'il n'y a pas d'illustration, on affiche l'icône haltère sur un fond de couleur à la place.
-  let illustration;
-  if (exercise.illustration) {
-    illustration = (
-      <img
-        src={`${API_URL}/uploads/illustrations/${exercise.illustration}`}
-        alt=""
-        className="exercise-detail-illustration"
-      />
-    );
-  } else {
-    illustration = (
-      <div className="exercise-detail-illustration exercise-detail-illustration-placeholder">
-        <img src={dumbbellIcon} alt="" />
-      </div>
-    );
-  }
-
   let videoSection = null;
   if (exercise.video) {
     videoSection = (
@@ -89,7 +70,7 @@ function ExerciseDetailPage() {
       </nav>
 
       <div className="card exercise-detail-card">
-        {illustration}
+        <ExerciseThumbnail illustration={exercise.illustration} className="exercise-detail-illustration" />
 
         <div className="exercise-detail-body">
           <div className="exercise-detail-title-row">
