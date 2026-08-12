@@ -1,0 +1,14 @@
+# React Router gère les routes côté client (/seances/4, /profile...) : sans cette règle,
+# actualiser une page autre que l'accueil renvoie une 404 Apache, car ces URL n'existent
+# pas comme vrais fichiers sur le serveur.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Les vrais fichiers (JS, CSS, images, favicon...) sont servis normalement
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # Tout le reste renvoie vers index.html, qui laisse React Router afficher la bonne page
+  RewriteRule ^ index.html [L]
+</IfModule>
