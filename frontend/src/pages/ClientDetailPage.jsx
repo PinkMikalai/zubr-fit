@@ -3,11 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import userService from '../services/userService';
 import seanceService from '../services/seanceService';
 import SeanceCard from '../components/seances/SeanceCard';
-import userIcon from '../assets/icons/user.svg';
-import mailIcon from '../assets/icons/mail.svg';
-import phoneIcon from '../assets/icons/phone.svg';
-
-const API_URL = import.meta.env.VITE_API_URL;
+import ProfileInfoCard from '../components/profile/ProfileInfoCard';
 
 function ClientDetailPage() {
   const { id } = useParams();
@@ -83,41 +79,11 @@ function ClientDetailPage() {
     );
   }
 
-  // On prépare l'avatar AVANT le return, avec un if/else classique
-  let avatarSrc = userIcon;
-  if (client.avatarUrl) {
-    avatarSrc = `${API_URL}${client.avatarUrl}`;
-  }
-
-  // On prépare le téléphone à afficher AVANT le return, avec un if classique
-  let phoneDisplay = client.phoneNumber;
-  if (!phoneDisplay) {
-    phoneDisplay = 'Non renseigné';
-  }
-
   return (
     <div className="profile-page">
       <Link to="/clients" className="button-secondary client-detail-back">Retour aux clients</Link>
 
-      <div className="card profile-photo-card">
-        <img src={avatarSrc} alt="" className="avatar-circle profile-avatar" />
-        <h2>{client.firstname} {client.lastname}</h2>
-        <p className="profile-role">Client</p>
-      </div>
-
-      <div className="card profile-section-card">
-        <h3 className="profile-section-title">Coordonnées</h3>
-
-        <div className="profile-detail-row">
-          <img src={mailIcon} alt="" />
-          <span>{client.email}</span>
-        </div>
-
-        <div className="profile-detail-row">
-          <img src={phoneIcon} alt="" />
-          <span>{phoneDisplay}</span>
-        </div>
-      </div>
+      <ProfileInfoCard user={client} roleLabel="Client" />
 
       <div className="card profile-section-card">
         <h3 className="profile-section-title">Séances</h3>
