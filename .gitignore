@@ -8,10 +8,12 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Env files
+# Env files : tout fichier .env* est ignoré (les vrais secrets ne doivent jamais être commités),
+# SAUF les modèles ".example" (aucun secret dedans, juste la liste des variables à remplir).
 .env
 .env.*
 !.env.example
+!.env.*.example
 
 # Backend secrets
 backend/config/jwt/*.pem
