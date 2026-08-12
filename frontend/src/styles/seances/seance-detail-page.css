@@ -76,14 +76,6 @@
 .exercise-line-thumbnail {
   width: 100%;
   height: 130px;
-  object-fit: cover;
-  background: var(--color-primary-light);
-}
-
-.exercise-line-thumbnail-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .exercise-line-thumbnail-placeholder img {
@@ -231,9 +223,16 @@
   color: var(--color-text-light);
 }
 
-/* Description ("quoi faire") et vidéo de démonstration : toujours en pleine largeur en bas de carte,
-   même à partir de 700px où la carte passe en ligne (vignette + footer côte à côte) */
+/* Textarea de consigne en mode édition, sous les champs séries/répétitions */
+.exercise-line-edit-comment {
+  width: 100%;
+  margin-top: var(--space-xs);
+}
+
+/* Description ("quoi faire"), consigne du coach et vidéo de démonstration : toujours en pleine
+   largeur en bas de carte, même à partir de 700px où la carte passe en ligne (vignette + footer côte à côte) */
 .exercise-line-description,
+.exercise-line-comment,
 .exercise-line-video {
   width: 100%;
   padding: 0 var(--space-md) var(--space-sm);
@@ -246,6 +245,27 @@
 }
 
 .exercise-line-description-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: var(--space-xs);
+}
+
+/* La consigne du coach est mise en avant (fond + liseré) pour bien la distinguer
+   de la description générique de l'exercice, juste en dessous */
+.exercise-line-comment {
+  padding-top: var(--space-sm);
+}
+
+.exercise-line-comment p:not(.exercise-line-comment-label) {
+  background: var(--color-primary-light);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius);
+  padding: var(--space-sm);
+  color: var(--color-text);
+}
+
+.exercise-line-comment-label {
   font-size: 14px;
   font-weight: 700;
   color: var(--color-heading);

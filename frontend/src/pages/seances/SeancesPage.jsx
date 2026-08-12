@@ -57,7 +57,7 @@ function SeancesPage() {
     content = <p>Aucune séance ne correspond à ce filtre.</p>;
   } else {
     content = (
-      <ul className="seance-list">
+      <ul className="card-grid">
         {visibleSeances.map((seance) => {
           let onDelete = null;
           if (isCoach) {
@@ -76,7 +76,7 @@ function SeancesPage() {
 
   return (
     <div>
-      <div className="seances-page-header">
+      <div className="page-header">
         <div>
           <h1>Mes séances</h1>
           <p className="page-description">{description}</p>

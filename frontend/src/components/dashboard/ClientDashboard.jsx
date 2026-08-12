@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
-import dumbbellIcon from '../../assets/icons/dumbbell.svg';
+import ExerciseThumbnail from '../exercises/ExerciseThumbnail';
 import checkIcon from '../../assets/icons/check.svg';
 
-const API_URL = import.meta.env.VITE_API_URL;
 const RING_RADIUS = 40;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
@@ -91,32 +90,13 @@ function ClientDashboard({ user }) {
   if (todayLines.length > 0) {
     exercisePreviewList = (
       <div className="today-exercises">
-        {todayLines.slice(0, 3).map((line) => {
-          let thumbnail;
-          if (line.exercise.illustration) {
-            thumbnail = (
-              <img
-                src={`${API_URL}/uploads/illustrations/${line.exercise.illustration}`}
-                alt=""
-                className="today-exercise-thumbnail"
-              />
-            );
-          } else {
-            thumbnail = (
-              <div className="today-exercise-thumbnail today-exercise-thumbnail-placeholder">
-                <img src={dumbbellIcon} alt="" />
-              </div>
-            );
-          }
-
-          return (
-            <div key={line.id} className="card today-exercise-card">
-              {thumbnail}
-              <h3>{line.exercise.name}</h3>
-              <p>{line.sets} sets x {line.reps} reps</p>
-            </div>
-          );
-        })}
+        {todayLines.slice(0, 3).map((line) => (
+          <div key={line.id} className="card today-exercise-card">
+            <ExerciseThumbnail illustration={line.exercise.illustration} className="today-exercise-thumbnail" />
+            <h3>{line.exercise.name}</h3>
+            <p>{line.sets} sets x {line.reps} reps</p>
+          </div>
+        ))}
       </div>
     );
   }

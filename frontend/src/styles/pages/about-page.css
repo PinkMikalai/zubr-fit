@@ -1,0 +1,72 @@
+.about-hero {
+  text-align: center;
+  padding: var(--space-xl) 0;
+}
+
+.about-section {
+  padding: var(--space-lg) 0;
+}
+
+.about-section h2 {
+  margin-bottom: var(--space-md);
+}
+
+/* Liste à puces des conditions d'utilisation (terms-page.jsx réutilise about-page.css) */
+.terms-list {
+  margin: 0 0 var(--space-sm);
+  padding-left: var(--space-lg);
+}
+
+.terms-list li {
+  margin-bottom: var(--space-xs);
+}
+
+/* Les 4 étapes du fonctionnement, chacune avec un numéro rond à gauche */
+.about-steps,
+.about-values {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.about-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.about-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 700;
+}
+
+.about-step-title {
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: var(--space-xs);
+}
+
+/* Les cartes de valeurs réutilisent .home-service-card pour l'icône + texte,
+   mais s'affichent en grille 2 colonnes au lieu d'une liste verticale */
+.about-values {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 700px) {
+  .about-values {
+    grid-template-columns: 1fr 1fr;
+  }
+}

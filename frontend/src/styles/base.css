@@ -86,6 +86,46 @@ button:disabled {
   padding: var(--space-md);
 }
 
+/* Vignette d'exercice partagée par ExerciseThumbnail.jsx : la taille (largeur/hauteur) reste
+   définie par chaque contexte (carte, fiche détail, ligne de séance...), seul l'habillage
+   commun (recadrage, fond, centrage du placeholder) est factorisé ici. */
+.illustration-thumb {
+  object-fit: cover;
+  background: var(--color-primary-light);
+}
+
+.illustration-thumb-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* En-tête de page liste (titre + description à gauche, bouton d'action à droite),
+   partagé par ExercisesPage et SeancesPage. */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.page-header .page-description {
+  color: var(--color-text-light);
+  margin-top: var(--space-xs);
+  max-width: 480px;
+}
+
+/* Grille de cartes responsive (exercices, séances...), une colonne de plus dès que la place le permet */
+.card-grid {
+  list-style: none;
+  margin: var(--space-md) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-md);
+}
+
 /* Petite étiquette arrondie (catégorie, niveau, statut...) */
 .badge {
   display: inline-flex;

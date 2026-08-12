@@ -87,6 +87,7 @@ function NavLinks({ hideAuthLinks }) {
     links = (
       <>
         <NavLink to="/" className={linkClassName} end>Accueil</NavLink>
+        <NavLink to="/about" className={linkClassName}>À propos</NavLink>
         {authLinks}
       </>
     );

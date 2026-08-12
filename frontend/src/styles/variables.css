@@ -42,7 +42,9 @@
   --radius-pill: 999px;
 }
 
-/* En mode sombre, on remplace juste les couleurs, le reste du CSS ne change pas */
+/* En mode sombre, on remplace juste les couleurs, le reste du CSS ne change pas.
+   Cette règle s'applique automatiquement quand l'utilisateur n'a jamais choisi de thème
+   lui-même (voir ThemeContext) : elle suit alors la préférence du système. */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-text: #e5e7eb;
@@ -62,4 +64,46 @@
 
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
   }
+}
+
+/* Choix manuel via le bouton ThemeToggle (ThemeContext pose data-theme sur <html>) :
+   ces règles ont une spécificité plus forte que la media query ci-dessus, donc elles
+   gagnent toujours, dans un sens comme dans l'autre, même si le système dit le contraire. */
+:root[data-theme='dark'] {
+  --color-text: #e5e7eb;
+  --color-text-light: #9ca3af;
+  --color-heading: #f9fafb;
+  --color-background: #14141f;
+  --color-surface: #1e1e2e;
+  --color-border: #62678f;
+
+  --color-primary: #818cf8;
+  --color-primary-hover: #a5b4fc;
+  --color-primary-light: #2a2a45;
+  --color-error: #f87171;
+  --color-error-background: #3b1a1a;
+  --color-success-background: #0f2e1f;
+  --color-warning: #fb923c;
+
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme='light'] {
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+  --color-heading: #111827;
+  --color-background: #f4f5fb;
+  --color-surface: #ffffff;
+  --color-border: #9598b8;
+
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #eef0ff;
+  --color-error: #dc2626;
+  --color-error-background: #fef2f2;
+  --color-success: #16a34a;
+  --color-success-background: #ecfdf3;
+  --color-warning: #f97316;
+
+  --shadow-card: 0 1px 2px rgba(30, 27, 75, 0.04), 0 4px 12px rgba(30, 27, 75, 0.06);
 }

@@ -12,14 +12,6 @@
 .exercise-card-illustration {
   width: 100%;
   height: 140px;
-  object-fit: cover;
-  background: var(--color-primary-light);
-}
-
-.exercise-card-illustration-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .exercise-card-illustration-placeholder img {

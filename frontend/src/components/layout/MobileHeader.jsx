@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import ThemeToggle from './ThemeToggle';
 import menuIcon from '../../assets/icons/menu.svg';
 import closeIcon from '../../assets/icons/close.svg';
 import gridIcon from '../../assets/icons/grid.svg';
@@ -147,6 +148,7 @@ function MobileHeader() {
         zubr-fit
       </Link>
       <div className="mobile-header-spacer" />
+      <ThemeToggle />
       {drawer}
     </header>
   );

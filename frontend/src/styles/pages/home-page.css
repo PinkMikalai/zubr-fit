@@ -1,13 +1,92 @@
-.home-page {
+.home-hero {
   text-align: center;
-  padding-top: var(--space-xl);
+  padding: var(--space-xl) 0;
 }
 
-.home-page h1 {
+.home-hero h1 {
   font-size: 48px;
 }
 
-.home-page p {
+.home-tagline {
   color: var(--color-text-light);
-  margin-bottom: var(--space-lg);
+  max-width: 560px;
+  margin: 0 auto var(--space-lg);
+}
+
+.home-hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* Section "Nos services", titre et sous-titre centrés au-dessus des deux colonnes */
+.home-services {
+  padding: var(--space-xl) 0;
+}
+
+.home-services > h2,
+.home-services > p {
+  text-align: center;
+}
+
+.home-services-columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+@media (min-width: 700px) {
+  .home-services-columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.home-services-column h3 {
+  text-align: center;
+  margin-bottom: var(--space-md);
+}
+
+.home-services-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* Carte de service : icône à gauche, titre + description à droite. Réutilisée
+   telle quelle par la page "À propos" pour ses cartes de valeurs. */
+.home-service-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+}
+
+.home-service-icon {
+  width: 40px;
+  height: 40px;
+  padding: var(--space-sm);
+  border-radius: var(--radius);
+  background: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.home-service-title {
+  font-weight: 700;
+  color: var(--color-heading);
+  margin-bottom: var(--space-xs);
+}
+
+/* Bandeau d'appel à l'action en bas de page, séparé du reste par un liseré */
+.home-cta {
+  text-align: center;
+  padding: var(--space-xl) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-cta .home-hero-actions {
+  margin-top: var(--space-md);
 }
