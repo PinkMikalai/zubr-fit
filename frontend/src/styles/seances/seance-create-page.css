@@ -48,20 +48,12 @@
   font-weight: 400;
 }
 
+/* Colonne verticale, un champ pleine largeur par ligne (comme "Informations générales" en face) :
+   align-items:stretch (valeur par défaut d'un flex en colonne) suffit à étirer select/input/textarea. */
 .seance-create-line-picker {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-sm);
-  align-items: center;
-}
-
-.seance-create-line-picker select {
-  flex: 1;
-  min-width: 160px;
-}
-
-.seance-create-line-picker input {
-  width: 90px;
 }
 
 .seance-create-line-picker-actions {

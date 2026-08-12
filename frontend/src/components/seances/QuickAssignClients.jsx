@@ -10,20 +10,26 @@ function QuickAssignClients({ assignees, onAssign }) {
   const [clients, setClients] = useState([]);
   const [loadingClients, setLoadingClients] = useState(false);
   const [assigningId, setAssigningId] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleOpen = () => {
     setIsOpen(true);
     setLoadingClients(true);
+    setError(null);
     coachClientService
       .list()
       .then(setClients)
+      .catch((err) => setError(err.message))
       .finally(() => setLoadingClients(false));
   };
 
   const handleAssign = async (clientId) => {
     setAssigningId(clientId);
+    setError(null);
     try {
       await onAssign(clientId);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setAssigningId(null);
     }
@@ -38,6 +44,8 @@ function QuickAssignClients({ assignees, onAssign }) {
     let panelContent;
     if (loadingClients) {
       panelContent = <p className="hint">Chargement des clients...</p>;
+    } else if (error) {
+      panelContent = <p className="form-error">{error}</p>;
     } else if (availableClients.length === 0) {
       panelContent = <p className="hint">Tous tes clients sont déjà assignés.</p>;
     } else {

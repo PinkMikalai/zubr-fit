@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { validateRegisterForm } from '../../utils/validators/validateAuthForm';
 import userIcon from '../../assets/icons/user.svg';
@@ -17,6 +17,7 @@ const initialForm = {
   lastname: '',
   phoneNumber: '',
   role: 'coach',
+  acceptTerms: false,
 };
 
 // Renvoie la classe CSS d'un bouton de rôle, "actif" ou pas, avec un if/else classique
@@ -42,6 +43,10 @@ function RegisterForm() {
 
   const selectRole = (role) => {
     setForm({ ...form, role: role });
+  };
+
+  const toggleAcceptTerms = (e) => {
+    setForm({ ...form, acceptTerms: e.target.checked });
   };
 
   const handleAvatarChange = (e) => {
@@ -107,6 +112,11 @@ function RegisterForm() {
   let confirmPasswordErrorMessage = null;
   if (errors.confirmPassword) {
     confirmPasswordErrorMessage = <p className="form-error">{errors.confirmPassword}</p>;
+  }
+
+  let acceptTermsErrorMessage = null;
+  if (errors.acceptTerms) {
+    acceptTermsErrorMessage = <p className="form-error">{errors.acceptTerms}</p>;
   }
 
   let apiErrorMessage = null;
@@ -242,6 +252,16 @@ function RegisterForm() {
           />
         </div>
         {confirmPasswordErrorMessage}
+      </div>
+
+      <div className="accept-terms-field">
+        <label className="accept-terms-label">
+          <input type="checkbox" checked={form.acceptTerms} onChange={toggleAcceptTerms} />
+          <span>
+            J'accepte les <Link to="/terms" target="_blank">conditions d'utilisation et la politique de confidentialité</Link>
+          </span>
+        </label>
+        {acceptTermsErrorMessage}
       </div>
 
       {apiErrorMessage}

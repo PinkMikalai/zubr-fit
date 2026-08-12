@@ -11,6 +11,16 @@
   margin-bottom: var(--space-md);
 }
 
+/* Liste à puces des conditions d'utilisation (terms-page.jsx réutilise about-page.css) */
+.terms-list {
+  margin: 0 0 var(--space-sm);
+  padding-left: var(--space-lg);
+}
+
+.terms-list li {
+  margin-bottom: var(--space-xs);
+}
+
 /* Les 4 étapes du fonctionnement, chacune avec un numéro rond à gauche */
 .about-steps,
 .about-values {

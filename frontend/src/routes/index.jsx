@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
 import AboutPage from '../pages/AboutPage';
+import TermsPage from '../pages/TermsPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProfilePage from '../pages/ProfilePage';
 import ClientsPage from '../pages/ClientsPage';
@@ -17,6 +18,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/about" element={<AboutPage />} />
+      <Route path="/terms" element={<TermsPage />} />
       {authRoutes}
       {exerciseRoutes}
       {seanceRoutes}

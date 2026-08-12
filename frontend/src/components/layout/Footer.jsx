@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 function Footer() {
     return (
         <footer className="app-footer">
-            <p>zubr-fit © 2026 · <Link to="/about">À propos</Link></p>
+            <p>zubr-fit © 2026 · <Link to="/about">À propos</Link> · <Link to="/terms">Conditions & confidentialité</Link></p>
         </footer>
     )
 }
