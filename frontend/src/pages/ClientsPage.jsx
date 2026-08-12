@@ -2,6 +2,7 @@ import { useClients } from '../hooks/useClients';
 import ClientCard from '../components/clients/ClientCard';
 import ClientSearch from '../components/clients/ClientSearch';
 import ClientHistory from '../components/clients/ClientHistory';
+import PageMeta from '../components/layout/PageMeta';
 
 // L'accès (réservé aux coachs) est déjà vérifié par CoachRoute dans routes/index.jsx
 function ClientsPage() {
@@ -35,6 +36,7 @@ function ClientsPage() {
 
   return (
     <div>
+      <PageMeta title="Mes clients" />
       <h1>Mes clients</h1>
       <p className="page-subtitle">Développe ta communauté en invitant de nouveaux athlètes.</p>
       {errorMessage}

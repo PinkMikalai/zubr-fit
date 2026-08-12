@@ -5,6 +5,7 @@ import seanceExerciseService from '../../services/seanceExerciseService';
 import { useAuth } from '../../hooks/useAuth';
 import QuickAssignClients from '../../components/seances/QuickAssignClients';
 import SeanceExerciseRow from '../../components/seances/SeanceExerciseRow';
+import PageMeta from '../../components/layout/PageMeta';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import usersIcon from '../../assets/icons/users.svg';
 import userIcon from '../../assets/icons/user.svg';
@@ -200,6 +201,7 @@ function SeanceDetailPage() {
 
   return (
     <div className="form-page">
+      <PageMeta title={seance.name} />
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>

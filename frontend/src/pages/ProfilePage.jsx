@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import EditProfileForm from '../components/profile/EditProfileForm';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
+import PageMeta from '../components/layout/PageMeta';
 
 // Traduit le rôle technique (ROLE_COACH / ROLE_USER) en texte lisible, avec un if/else classique
 function getRoleLabel(roles) {
@@ -22,6 +23,7 @@ function ProfilePage() {
   if (isEditing) {
     return (
       <div className="profile-page">
+        <PageMeta title="Modifier mon profil" />
         <h1>Modifier mon profil</h1>
         <EditProfileForm user={user} onCancel={() => setIsEditing(false)} onSaved={() => setIsEditing(false)} />
       </div>
@@ -34,6 +36,7 @@ function ProfilePage() {
 
   return (
     <div className="profile-page">
+      <PageMeta title="Mon profil" />
       <h1>Mon profil</h1>
       <ProfileInfoCard user={user} roleLabel={getRoleLabel(user.roles)} actions={editButton} />
     </div>

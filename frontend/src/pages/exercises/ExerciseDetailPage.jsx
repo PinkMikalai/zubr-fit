@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import exerciseService from '../../services/exerciseService';
 import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
 import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
+import PageMeta from '../../components/layout/PageMeta';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,6 +64,7 @@ function ExerciseDetailPage() {
 
   return (
     <div className="form-page">
+      <PageMeta title={exercise.name} />
       <nav className="breadcrumb">
         <Link to="/exercises">Exercices</Link>
         <span className="breadcrumb-separator">›</span>
