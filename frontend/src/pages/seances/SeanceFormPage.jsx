@@ -72,11 +72,12 @@ function SeanceFormPage() {
 
   // Un exercice ajouté va toujours à la fin de la séance : sa position ne peut pas
   // rentrer en conflit avec un exercice déjà présent. Pour réordonner, on utilise les flèches.
-  const handleAddExercise = async ({ exerciseId, sets, reps }) => {
+  const handleAddExercise = async ({ exerciseId, sets, reps, comment }) => {
     await seanceExerciseService.add(id, {
       exerciseId: exerciseId,
       sets: sets,
       reps: reps,
+      comment: comment,
       position: lines.length,
     });
     loadLines();
@@ -87,8 +88,8 @@ function SeanceFormPage() {
     loadLines();
   };
 
-  const handleUpdateExercise = async (lineId, { sets, reps }) => {
-    await seanceExerciseService.update(id, lineId, { sets: sets, reps: reps });
+  const handleUpdateExercise = async (lineId, { sets, reps, comment }) => {
+    await seanceExerciseService.update(id, lineId, { sets: sets, reps: reps, comment: comment });
     loadLines();
   };
 

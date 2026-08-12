@@ -11,6 +11,7 @@ function AddSeanceExerciseForm({ onAdd }) {
   const [exerciseId, setExerciseId] = useState('');
   const [sets, setSets] = useState('');
   const [reps, setReps] = useState('');
+  const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -37,10 +38,11 @@ function AddSeanceExerciseForm({ onAdd }) {
     setSubmitting(true);
     setError(null);
     try {
-      await onAdd({ exerciseId: exerciseId, sets: sets, reps: reps });
+      await onAdd({ exerciseId: exerciseId, sets: sets, reps: reps, comment: comment });
       setExerciseId('');
       setSets('');
       setReps('');
+      setComment('');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -136,6 +138,16 @@ function AddSeanceExerciseForm({ onAdd }) {
           onChange={(e) => setReps(e.target.value)}
         />
         {repsErrorMessage}
+      </div>
+
+      <div>
+        <label htmlFor="comment">Consigne pour cette séance (optionnel)</label>
+        <textarea
+          id="comment"
+          placeholder="Ex : fais-le lentement, réduis l'amplitude si douleur..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
       </div>
 
       {errorMessage}

@@ -34,7 +34,7 @@ function ExercisesPage() {
     content = <p>Aucun exercice ne correspond à ce filtre.</p>;
   } else {
     content = (
-      <ul className="exercise-list">
+      <ul className="card-grid">
         {filteredExercises.map((exercise) => (
           <li key={exercise.id}>
             <ExerciseCard exercise={exercise} onDelete={() => remove(exercise.id)} />
@@ -46,7 +46,7 @@ function ExercisesPage() {
 
   return (
     <div>
-      <div className="exercises-page-header">
+      <div className="page-header">
         <div>
           <h1>Mes exercices</h1>
           <p className="page-description">Gère la bibliothèque d'exercices que tu utilises dans tes séances.</p>

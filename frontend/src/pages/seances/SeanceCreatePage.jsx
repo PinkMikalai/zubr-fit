@@ -8,6 +8,7 @@ import { getCategoryLabel, getLevelLabel, LEVEL_OPTIONS } from '../../utils/exer
 import { useExerciseFilters } from '../../hooks/useExerciseFilters';
 import { validateSeanceForm, validateExerciseLine } from '../../utils/validators/validateSeanceForm';
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
+import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import plusIcon from '../../assets/icons/plus.svg';
@@ -45,6 +46,7 @@ function SeanceCreatePage() {
   const [pickedExerciseId, setPickedExerciseId] = useState('');
   const [pickedSets, setPickedSets] = useState('');
   const [pickedReps, setPickedReps] = useState('');
+  const [pickedComment, setPickedComment] = useState('');
 
   const [clientQuery, setClientQuery] = useState('');
   const [selectedClientIds, setSelectedClientIds] = useState([]);
@@ -79,11 +81,19 @@ function SeanceCreatePage() {
 
     setLines((prev) => [
       ...prev,
-      { tempId: nextTempId++, exerciseId: exercise.id, exercise: exercise, sets: pickedSets, reps: pickedReps },
+      {
+        tempId: nextTempId++,
+        exerciseId: exercise.id,
+        exercise: exercise,
+        sets: pickedSets,
+        reps: pickedReps,
+        comment: pickedComment,
+      },
     ]);
     setPickedExerciseId('');
     setPickedSets('');
     setPickedReps('');
+    setPickedComment('');
     setIsPickerOpen(false);
   };
 
@@ -150,6 +160,7 @@ function SeanceCreatePage() {
           exerciseId: line.exerciseId,
           sets: line.sets,
           reps: line.reps,
+          comment: line.comment,
           position: i,
         });
       }
@@ -266,6 +277,11 @@ function SeanceCreatePage() {
           onChange={(e) => setPickedReps(e.target.value)}
         />
         {repsErrorMessage}
+        <textarea
+          placeholder="Consigne pour cette séance (optionnel)"
+          value={pickedComment}
+          onChange={(e) => setPickedComment(e.target.value)}
+        />
         <div className="seance-create-line-picker-actions">
           <button type="button" onClick={handleAddLine}>Ajouter</button>
           <button type="button" onClick={() => setIsPickerOpen(false)} className="button-secondary">
@@ -299,22 +315,9 @@ function SeanceCreatePage() {
     linesList = (
       <ul className="seance-create-lines">
         {lines.map((line, index) => {
-          let thumbnail;
-          if (line.exercise.illustration) {
-            thumbnail = (
-              <img
-                src={`${API_URL}/uploads/illustrations/${line.exercise.illustration}`}
-                alt=""
-                className="exercise-line-thumbnail"
-              />
-            );
-          } else {
-            thumbnail = (
-              <div className="exercise-line-thumbnail exercise-line-thumbnail-placeholder">
-                <img src={dumbbellIcon} alt="" />
-              </div>
-            );
-          }
+          const thumbnail = (
+            <ExerciseThumbnail illustration={line.exercise.illustration} className="exercise-line-thumbnail" />
+          );
 
           let moveUpDisabled = false;
           if (index === 0) {
@@ -324,6 +327,16 @@ function SeanceCreatePage() {
           let moveDownDisabled = false;
           if (index === lines.length - 1) {
             moveDownDisabled = true;
+          }
+
+          let commentSection = null;
+          if (line.comment) {
+            commentSection = (
+              <div className="exercise-line-comment">
+                <p className="exercise-line-comment-label">Consigne du coach</p>
+                <p>{line.comment}</p>
+              </div>
+            );
           }
 
           return (
@@ -373,6 +386,7 @@ function SeanceCreatePage() {
                   <img src={trashIcon} alt="" />
                 </button>
               </div>
+              {commentSection}
             </li>
           );
         })}

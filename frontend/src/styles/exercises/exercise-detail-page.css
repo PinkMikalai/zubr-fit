@@ -8,14 +8,6 @@
 .exercise-detail-illustration {
   width: 100%;
   height: 220px;
-  object-fit: cover;
-  background: var(--color-primary-light);
-}
-
-.exercise-detail-illustration-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .exercise-detail-illustration-placeholder img {

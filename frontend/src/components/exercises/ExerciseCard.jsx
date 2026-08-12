@@ -1,29 +1,8 @@
 import { Link } from 'react-router-dom';
-import dumbbellIcon from '../../assets/icons/dumbbell.svg';
+import ExerciseThumbnail from './ExerciseThumbnail';
 import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
 
-const API_URL = import.meta.env.VITE_API_URL;
-
 function ExerciseCard({ exercise, onDelete }) {
-  // On prépare l'image AVANT le return, avec un if/else classique.
-  // S'il n'y a pas d'illustration, on affiche l'icône haltère sur un fond de couleur à la place.
-  let illustration;
-  if (exercise.illustration) {
-    illustration = (
-      <img
-        src={`${API_URL}/uploads/illustrations/${exercise.illustration}`}
-        alt=""
-        className="exercise-card-illustration"
-      />
-    );
-  } else {
-    illustration = (
-      <div className="exercise-card-illustration exercise-card-illustration-placeholder">
-        <img src={dumbbellIcon} alt="" />
-      </div>
-    );
-  }
-
   // Les boutons Modifier/Supprimer font partie de la carte elle-même, pas un bloc à part en dessous.
   let footer = null;
   if (onDelete) {
@@ -37,7 +16,7 @@ function ExerciseCard({ exercise, onDelete }) {
 
   return (
     <article className="exercise-card card">
-      {illustration}
+      <ExerciseThumbnail illustration={exercise.illustration} className="exercise-card-illustration" />
       <div className="exercise-card-body">
         <h3>
           <Link to={`/exercises/${exercise.id}`}>{exercise.name}</Link>

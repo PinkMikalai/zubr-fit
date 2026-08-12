@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import ThemeToggle from './ThemeToggle';
 import calendarIcon from '../../assets/icons/calendar.svg';
 
 // La date du jour, écrite en toutes lettres en français (ex : "Lundi 24 octobre")
@@ -28,13 +29,18 @@ function DesktopHeader() {
   } else {
     content = (
       <div className="desktop-header-links">
-        <Link to="/login">Connexion</Link>
-        <Link to="/register">Inscription</Link>
+        <Link to="/login" className="button-secondary">Connexion</Link>
+        <Link to="/register" className="button-primary">Inscription</Link>
       </div>
     );
   }
 
-  return <header className="desktop-header">{content}</header>;
+  return (
+    <header className="desktop-header">
+      {content}
+      <ThemeToggle />
+    </header>
+  );
 }
 
 export default DesktopHeader;

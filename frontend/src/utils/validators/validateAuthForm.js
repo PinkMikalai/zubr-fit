@@ -38,7 +38,7 @@ export function validateLoginForm({ email, password }) {
   return errors;
 }
 
-export function validateRegisterForm({ email, password, confirmPassword, firstname, lastname, role }) {
+export function validateRegisterForm({ email, password, confirmPassword, firstname, lastname, role, acceptTerms }) {
   const errors = validateLoginForm({ email, password });
 
   if (password) {
@@ -68,6 +68,10 @@ export function validateRegisterForm({ email, password, confirmPassword, firstna
 
   if (!role) {
     errors.role = 'Le rôle est requis';
+  }
+
+  if (!acceptTerms) {
+    errors.acceptTerms = "Tu dois accepter les conditions d'utilisation pour continuer";
   }
 
   return errors;
