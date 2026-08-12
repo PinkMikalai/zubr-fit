@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import PageMeta from '../components/layout/PageMeta';
 import dumbbellIcon from '../assets/icons/dumbbell.svg';
 import calendarIcon from '../assets/icons/calendar.svg';
 import usersIcon from '../assets/icons/users.svg';
@@ -40,6 +41,10 @@ function HomePage() {
 
   return (
     <div className="home-page">
+      <PageMeta
+        title="Accueil"
+        description="zubr-fit connecte coachs et clients pour suivre l'entraînement : création de séances, exercices personnalisés et suivi des progrès."
+      />
       <section className="home-hero">
         <h1>zubr-fit</h1>
         <p className="home-tagline">

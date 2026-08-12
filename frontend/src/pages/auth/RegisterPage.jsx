@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import RegisterForm from '../../components/auth/RegisterForm';
+import PageMeta from '../../components/layout/PageMeta';
 import logoMark from '../../assets/icons/logo-mark.svg';
 
 function RegisterPage() {
   return (
     <div className="auth-page">
+      <PageMeta title="Créer un compte" />
       <div className="card auth-card">
         <div className="auth-brand">
           <span className="auth-logo">

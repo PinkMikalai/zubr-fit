@@ -9,6 +9,7 @@ import { useExerciseFilters } from '../../hooks/useExerciseFilters';
 import { validateSeanceForm, validateExerciseLine } from '../../utils/validators/validateSeanceForm';
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
 import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
+import PageMeta from '../../components/layout/PageMeta';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import plusIcon from '../../assets/icons/plus.svg';
@@ -454,6 +455,7 @@ function SeanceCreatePage() {
 
   return (
     <div className="form-page">
+      <PageMeta title="Nouvelle séance" />
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSeances } from '../../hooks/useSeances';
 import { useAuth } from '../../hooks/useAuth';
 import SeanceCard from '../../components/seances/SeanceCard';
+import PageMeta from '../../components/layout/PageMeta';
 import { LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 
 function SeancesPage() {
@@ -76,6 +77,7 @@ function SeancesPage() {
 
   return (
     <div>
+      <PageMeta title="Mes séances" />
       <div className="page-header">
         <div>
           <h1>Mes séances</h1>

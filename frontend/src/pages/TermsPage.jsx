@@ -1,6 +1,12 @@
+import PageMeta from '../components/layout/PageMeta';
+
 function TermsPage() {
   return (
     <div className="terms-page">
+      <PageMeta
+        title="Conditions d'utilisation"
+        description="Conditions d'utilisation et politique de confidentialité de zubr-fit : données collectées, droits des utilisateurs et mentions légales."
+      />
       <section className="about-hero">
         <h1>Conditions d'utilisation et confidentialité</h1>
         <p className="home-tagline">
