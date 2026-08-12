@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /clients
+Disallow: /seances
+Disallow: /exercises
+
+Sitemap: https://zubr-fit.com/sitemap.xml

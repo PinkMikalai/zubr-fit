@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom';
 import LoginForm from '../../components/auth/LoginForm';
+import PageMeta from '../../components/layout/PageMeta';
 import logoMark from '../../assets/icons/logo-mark.svg';
 
 function LoginPage() {
   return (
     <div className="auth-page">
+      <PageMeta title="Connexion" />
       <div className="card auth-card">
         <div className="auth-brand">
           <span className="auth-logo">

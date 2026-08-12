@@ -4,6 +4,7 @@ import userService from '../services/userService';
 import seanceService from '../services/seanceService';
 import SeanceCard from '../components/seances/SeanceCard';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
+import PageMeta from '../components/layout/PageMeta';
 
 function ClientDetailPage() {
   const { id } = useParams();
@@ -81,6 +82,7 @@ function ClientDetailPage() {
 
   return (
     <div className="profile-page">
+      <PageMeta title={`${client.firstname} ${client.lastname}`} />
       <Link to="/clients" className="button-secondary client-detail-back">Retour aux clients</Link>
 
       <ProfileInfoCard user={client} roleLabel="Client" />

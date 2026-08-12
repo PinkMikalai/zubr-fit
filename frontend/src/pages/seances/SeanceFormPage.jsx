@@ -4,6 +4,7 @@ import SeanceForm from '../../components/seances/SeanceForm';
 import AssignSeanceForm from '../../components/seances/AssignSeanceForm';
 import SeanceExerciseRow from '../../components/seances/SeanceExerciseRow';
 import AddSeanceExerciseForm from '../../components/seances/AddSeanceExerciseForm';
+import PageMeta from '../../components/layout/PageMeta';
 import seanceService from '../../services/seanceService';
 import seanceExerciseService from '../../services/seanceExerciseService';
 import infoIcon from '../../assets/icons/info.svg';
@@ -187,6 +188,7 @@ function SeanceFormPage() {
 
   return (
     <div className="form-page">
+      <PageMeta title="Modifier la séance" />
       <nav className="breadcrumb">
         <Link to="/seances">Séances</Link>
         <span className="breadcrumb-separator">›</span>

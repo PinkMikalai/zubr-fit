@@ -3,6 +3,7 @@ import { useExercises } from '../../hooks/useExercises';
 import { useExerciseFilters } from '../../hooks/useExerciseFilters';
 import ExerciseCard from '../../components/exercises/ExerciseCard';
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
+import PageMeta from '../../components/layout/PageMeta';
 
 function ExercisesPage() {
   const { exercises, loading, error, remove } = useExercises();
@@ -46,6 +47,7 @@ function ExercisesPage() {
 
   return (
     <div>
+      <PageMeta title="Mes exercices" />
       <div className="page-header">
         <div>
           <h1>Mes exercices</h1>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import PageMeta from '../components/layout/PageMeta';
 import userIcon from '../assets/icons/user.svg';
 import dumbbellIcon from '../assets/icons/dumbbell.svg';
 import calendarIcon from '../assets/icons/calendar.svg';
@@ -20,6 +21,10 @@ function Step({ number, title, description }) {
 function AboutPage() {
   return (
     <div className="about-page">
+      <PageMeta
+        title="À propos"
+        description="Découvre comment zubr-fit connecte coachs et clients : bibliothèque d'exercices, séances sur-mesure et suivi de la progression."
+      />
       <section className="about-hero">
         <h1>À propos de zubr-fit</h1>
         <p className="home-tagline">

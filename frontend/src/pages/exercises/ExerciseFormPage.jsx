@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ExerciseForm from '../../components/exercises/ExerciseForm';
+import PageMeta from '../../components/layout/PageMeta';
 import exerciseService from '../../services/exerciseService';
 import infoIcon from '../../assets/icons/info.svg';
 
@@ -61,6 +62,7 @@ function ExerciseFormPage() {
 
   return (
     <div className="form-page">
+      <PageMeta title={title} />
       <nav className="breadcrumb">
         <Link to="/exercises">Exercices</Link>
         <span className="breadcrumb-separator">›</span>
