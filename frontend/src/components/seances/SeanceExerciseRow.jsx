@@ -23,6 +23,8 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
   const [reps, setReps] = useState(line.reps);
   const [comment, setComment] = useState(getCommentValue(line.comment));
   const [submitting, setSubmitting] = useState(false);
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
 
   const startEditing = () => {
     setSets(line.sets);
@@ -145,24 +147,58 @@ function SeanceExerciseRow({ line, onRemove, onUpdate, onMoveUp, onMoveDown, isF
 
   // Le commentaire est la consigne du coach spécifique à CETTE séance (différent de la description
   // générique de l'exercice) : on le met en avant avec un style distinct, quand il y en a un.
+  let commentIcon = chevronDownIcon;
+  if (isCommentOpen) {
+    commentIcon = chevronUpIcon;
+  }
+
+  let commentBody = null;
+  if (isCommentOpen) {
+    commentBody = <p>{line.comment}</p>;
+  }
+
   let commentSection = null;
   if (!isEditing && line.comment) {
     commentSection = (
       <div className="exercise-line-comment">
-        <p className="exercise-line-comment-label">Consigne du coach</p>
-        <p>{line.comment}</p>
+        <button
+          type="button"
+          className="exercise-line-section-toggle"
+          onClick={() => setIsCommentOpen(!isCommentOpen)}
+        >
+          <span className="exercise-line-comment-label">Consigne du coach</span>
+          <img src={commentIcon} alt="" />
+        </button>
+        {commentBody}
       </div>
     );
   }
 
   // La description ("quoi faire") et la vidéo de démonstration ne sont affichées qu'en mode consultation,
   // pas pendant l'édition des séries/répétitions.
+  let descriptionIcon = chevronDownIcon;
+  if (isDescriptionOpen) {
+    descriptionIcon = chevronUpIcon;
+  }
+
+  let descriptionBody = null;
+  if (isDescriptionOpen) {
+    descriptionBody = <p>{line.exercise.description}</p>;
+  }
+
   let descriptionSection = null;
   if (!isEditing && line.exercise.description) {
     descriptionSection = (
       <div className="exercise-line-description">
-        <p className="exercise-line-description-label">Quoi faire</p>
-        <p>{line.exercise.description}</p>
+        <button
+          type="button"
+          className="exercise-line-section-toggle"
+          onClick={() => setIsDescriptionOpen(!isDescriptionOpen)}
+        >
+          <span className="exercise-line-description-label">Quoi faire</span>
+          <img src={descriptionIcon} alt="" />
+        </button>
+        {descriptionBody}
       </div>
     );
   }
