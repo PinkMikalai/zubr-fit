@@ -11,6 +11,8 @@ import usersIcon from '../../assets/icons/users.svg';
 import userIcon from '../../assets/icons/user.svg';
 import calendarIcon from '../../assets/icons/calendar.svg';
 import statusIcon from '../../assets/icons/status.svg';
+import chevronUpIcon from '../../assets/icons/chevron-up.svg';
+import chevronDownIcon from '../../assets/icons/chevron-down.svg';
 import { getLevelLabel } from '../../utils/exerciseLabels';
 import { formatDate } from '../../utils/formatDate';
 
@@ -30,6 +32,7 @@ function SeanceDetailPage() {
   const [assignees, setAssignees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCommentOpen, setIsCommentOpen] = useState(false);
 
   const loadAssignees = () => {
     seanceService.getAssignees(id).then(setAssignees);
@@ -153,9 +156,31 @@ function SeanceDetailPage() {
     );
   }
 
+  let commentIcon = chevronDownIcon;
+  if (isCommentOpen) {
+    commentIcon = chevronUpIcon;
+  }
+
+  let commentBody = null;
+  if (isCommentOpen) {
+    commentBody = <p>{seance.comment}</p>;
+  }
+
   let commentSection = null;
   if (seance.comment) {
-    commentSection = <p>{seance.comment}</p>;
+    commentSection = (
+      <div className="seance-detail-comment">
+        <button
+          type="button"
+          className="exercise-line-section-toggle"
+          onClick={() => setIsCommentOpen(!isCommentOpen)}
+        >
+          <span className="exercise-line-comment-label">Consignes</span>
+          <img src={commentIcon} alt="" />
+        </button>
+        {commentBody}
+      </div>
+    );
   }
 
   // Les exercices sont ici en lecture seule : on ne passe aucun handler à SeanceExerciseRow
