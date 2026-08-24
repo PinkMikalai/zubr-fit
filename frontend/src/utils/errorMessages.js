@@ -6,6 +6,8 @@ const ERROR_MESSAGES = {
   'Invalid JWT Token': 'Session invalide, merci de vous reconnecter',
   'JWT Token not found': 'Vous devez être connecté pour accéder à cette page',
   'Expired JWT Token': 'Votre session a expiré, merci de vous reconnecter',
+  'This email is already registered': 'Cette adresse e-mail est déjà utilisée',
+  'Email already registered': 'Cette adresse e-mail est déjà utilisée',
 };
 
 // Renvoie le message français correspondant si on le connaît,
