@@ -252,28 +252,26 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-heading);
-}
-
-/* Bouton cliquable qui affiche/cache "Consigne du coach" et "Quoi faire" (fermées par défaut) */
-.exercise-line-section-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: none;
-  padding: 0;
   margin-bottom: var(--space-xs);
 }
 
-/* La règle générale "button:hover" du base.css est plus spécifique qu'une simple classe :
+/* Bouton "Voir tout"/"Voir moins" affiché sous un texte tronqué (voir ExpandableText.jsx) */
+.expandable-text-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-xs);
+}
+
+/* La règle générale "button:hover" du base.css est plus spécifique que .link-button seul :
    sans ce :hover explicite, elle repasserait le bouton en indigo plein au survol/appui */
-.exercise-line-section-toggle:hover {
+.expandable-text-toggle:hover {
   background: none;
 }
 
-.exercise-line-section-toggle img {
-  width: 16px;
-  height: 16px;
+.expandable-text-toggle img {
+  width: 12px;
+  height: 12px;
 }
 
 /* La consigne du coach est mise en avant (fond + liseré) pour bien la distinguer
@@ -294,6 +292,7 @@
   font-size: 14px;
   font-weight: 700;
   color: var(--color-heading);
+  margin-bottom: var(--space-xs);
 }
 
 .exercise-line-video-label {
