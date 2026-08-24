@@ -16,7 +16,9 @@ function ExerciseCard({ exercise, onDelete }) {
 
   return (
     <article className="exercise-card card">
-      <ExerciseThumbnail illustration={exercise.illustration} className="exercise-card-illustration" />
+      <Link to={`/exercises/${exercise.id}`}>
+        <ExerciseThumbnail illustration={exercise.illustration} className="exercise-card-illustration" />
+      </Link>
       <div className="exercise-card-body">
         <h3>
           <Link to={`/exercises/${exercise.id}`}>{exercise.name}</Link>

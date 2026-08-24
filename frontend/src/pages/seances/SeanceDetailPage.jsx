@@ -6,13 +6,12 @@ import { useAuth } from '../../hooks/useAuth';
 import QuickAssignClients from '../../components/seances/QuickAssignClients';
 import SeanceExerciseRow from '../../components/seances/SeanceExerciseRow';
 import PageMeta from '../../components/layout/PageMeta';
+import ExpandableText from '../../components/layout/ExpandableText';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import usersIcon from '../../assets/icons/users.svg';
 import userIcon from '../../assets/icons/user.svg';
 import calendarIcon from '../../assets/icons/calendar.svg';
 import statusIcon from '../../assets/icons/status.svg';
-import chevronUpIcon from '../../assets/icons/chevron-up.svg';
-import chevronDownIcon from '../../assets/icons/chevron-down.svg';
 import { getLevelLabel } from '../../utils/exerciseLabels';
 import { formatDate } from '../../utils/formatDate';
 
@@ -32,7 +31,6 @@ function SeanceDetailPage() {
   const [assignees, setAssignees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isCommentOpen, setIsCommentOpen] = useState(false);
 
   const loadAssignees = () => {
     seanceService.getAssignees(id).then(setAssignees);
@@ -156,29 +154,12 @@ function SeanceDetailPage() {
     );
   }
 
-  let commentIcon = chevronDownIcon;
-  if (isCommentOpen) {
-    commentIcon = chevronUpIcon;
-  }
-
-  let commentBody = null;
-  if (isCommentOpen) {
-    commentBody = <p>{seance.comment}</p>;
-  }
-
   let commentSection = null;
   if (seance.comment) {
     commentSection = (
       <div className="seance-detail-comment">
-        <button
-          type="button"
-          className="exercise-line-section-toggle"
-          onClick={() => setIsCommentOpen(!isCommentOpen)}
-        >
-          <span className="exercise-line-comment-label">Consignes</span>
-          <img src={commentIcon} alt="" />
-        </button>
-        {commentBody}
+        <p className="exercise-line-comment-label">Consignes</p>
+        <ExpandableText text={seance.comment} />
       </div>
     );
   }
