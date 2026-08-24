@@ -58,7 +58,20 @@ async function request(endpoint, options) {
 
   if (!response.ok) {
     let errorMessage = `Erreur ${response.status}`;
-    if (data && data.message) {
+
+    // Les erreurs de validation (422) renvoient un détail par champ dans "errors" (ex: { email: "..." }) :
+    // c'est ce message précis qu'il faut afficher, pas le "Validation failed" générique de "message".
+    let fieldErrorMessage = null;
+    if (data && data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+      const fieldMessages = Object.values(data.errors);
+      if (fieldMessages.length > 0) {
+        fieldErrorMessage = fieldMessages[0];
+      }
+    }
+
+    if (fieldErrorMessage) {
+      errorMessage = translateErrorMessage(fieldErrorMessage);
+    } else if (data && data.message) {
       errorMessage = translateErrorMessage(data.message);
     }
 
