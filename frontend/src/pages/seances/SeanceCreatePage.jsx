@@ -10,6 +10,7 @@ import { validateSeanceForm, validateExerciseLine } from '../../utils/validators
 import ExerciseFilterBar from '../../components/exercises/ExerciseFilterBar';
 import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
 import PageMeta from '../../components/layout/PageMeta';
+import ExpandableText from '../../components/layout/ExpandableText';
 import dumbbellIcon from '../../assets/icons/dumbbell.svg';
 import trashIcon from '../../assets/icons/trash.svg';
 import plusIcon from '../../assets/icons/plus.svg';
@@ -335,7 +336,7 @@ function SeanceCreatePage() {
             commentSection = (
               <div className="exercise-line-comment">
                 <p className="exercise-line-comment-label">Consigne du coach</p>
-                <p>{line.comment}</p>
+                <ExpandableText text={line.comment} />
               </div>
             );
           }
