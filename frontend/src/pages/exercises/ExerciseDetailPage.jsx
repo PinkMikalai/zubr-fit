@@ -4,6 +4,7 @@ import exerciseService from '../../services/exerciseService';
 import { getCategoryLabel, getLevelLabel } from '../../utils/exerciseLabels';
 import ExerciseThumbnail from '../../components/exercises/ExerciseThumbnail';
 import PageMeta from '../../components/layout/PageMeta';
+import ExpandableText from '../../components/layout/ExpandableText';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -83,7 +84,7 @@ function ExerciseDetailPage() {
             </div>
           </div>
 
-          <p>{exercise.description}</p>
+          <ExpandableText text={exercise.description} />
 
           {videoSection}
 
