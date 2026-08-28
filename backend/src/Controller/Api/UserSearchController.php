@@ -7,12 +7,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Attribute\Route;
 
 // Recherche d'utilisateurs, réservée aux coachs : sert à trouver un utilisateur
 // (par nom, prénom, email ou téléphone) pour l'ajouter comme client.
 // Séparé de UserController (qui gère "mon propre profil") car c'est une responsabilité différente.
 #[Route('/api/users', name: 'user_search_')]
+#[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent rechercher des utilisateurs.')]
 final class UserSearchController extends AbstractController
 {
     public function __construct(
@@ -21,24 +24,8 @@ final class UserSearchController extends AbstractController
     }
 
     #[Route('', name: 'search', methods: ['GET'])]
-    public function search(Request $request): JsonResponse
+    public function search(Request $request, #[CurrentUser] User $coach): JsonResponse
     {
-        $coach = $this->getUser();
-
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Only coaches can search users'
-            ], 403);
-        }
-
         // Le paramètre de recherche est optionnel : sans lui, on renvoie la liste complète
         $query = $request->query->get('q');
 

@@ -4,15 +4,10 @@ import { useAuth } from '../hooks/useAuth';
 // Celui-ci bloque en plus l'accès aux pages réservées aux coachs (gestion des
 // exercices, création/édition de séances, gestion des clients).
 const CoachRoute = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { loading, isCoach } = useAuth();
 
   if (loading) {
     return <p>Chargement...</p>;
-  }
-
-  let isCoach = false;
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
   }
 
   if (!isCoach) {

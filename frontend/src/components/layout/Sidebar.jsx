@@ -10,11 +10,11 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Menu de gauche, visible seulement en desktop (voir styles/layout/sidebar.css).
 // En dessous de la largeur "desktop", c'est MobileHeader qui prend le relais.
 function Sidebar() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, isCoach, logout } = useAuth();
 
   // On prépare le sous-titre sous le logo AVANT le return, avec un if/else classique
   let tagline = 'La performance à votre portée';
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
+  if (isCoach) {
     tagline = 'Espace Coach';
   } else if (user) {
     tagline = 'Espace Client';

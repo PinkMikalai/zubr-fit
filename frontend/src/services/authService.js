@@ -1,25 +1,14 @@
 import api from './api';
-
-const TOKEN_KEY = 'token';
+import buildFormData from '../utils/buildFormData';
+import { getToken as readToken, setToken, clearToken } from '../utils/tokenStorage';
 
 const authService = {
   async register(userData) {
     // Si une photo de profil a été choisie, il faut envoyer une FormData (pour le fichier).
     // Sinon, un objet JSON classique suffit.
     let body = userData;
-
     if (userData.avatar) {
-      const formData = new FormData();
-      formData.append('email', userData.email);
-      formData.append('password', userData.password);
-      formData.append('firstname', userData.firstname);
-      formData.append('lastname', userData.lastname);
-      formData.append('role', userData.role);
-      if (userData.phoneNumber) {
-        formData.append('phoneNumber', userData.phoneNumber);
-      }
-      formData.append('avatar', userData.avatar);
-      body = formData;
+      body = buildFormData(userData);
     }
 
     const data = await api('/auth/register', { method: 'POST', body: body });
@@ -33,59 +22,45 @@ const authService = {
     const data = await api('/auth/login', { method: 'POST', body: { email: email, password: password } });
 
     if (data.token) {
-      localStorage.setItem(TOKEN_KEY, data.token);
+      setToken(data.token);
     }
 
     return data;
   },
 
   async getProfile() {
-    const token = this.getToken();
+    const token = readToken();
 
     if (!token) {
       throw new Error('Aucun token trouvé');
     }
 
-    const data = await api('/profile', { token: token });
+    const data = await api('/profile');
     return data.data;
   },
 
   async updateProfile(userData) {
-    const token = this.getToken();
-
     // Si une nouvelle photo de profil a été choisie, il faut envoyer une FormData (pour le fichier).
     // Sinon, un objet JSON classique suffit.
     let body = userData;
-
     if (userData.avatar) {
-      const formData = new FormData();
-      formData.append('firstname', userData.firstname);
-      formData.append('lastname', userData.lastname);
-      formData.append('email', userData.email);
-      if (userData.phoneNumber) {
-        formData.append('phoneNumber', userData.phoneNumber);
-      }
-      if (userData.password) {
-        formData.append('password', userData.password);
-      }
-      formData.append('avatar', userData.avatar);
-      body = formData;
+      body = buildFormData(userData);
     }
 
-    const data = await api('/profile/update', { method: 'POST', body: body, token: token });
+    const data = await api('/profile/update', { method: 'POST', body: body });
     return data.data;
   },
 
   logout() {
-    localStorage.removeItem(TOKEN_KEY);
+    clearToken();
   },
 
   getToken() {
-    return localStorage.getItem(TOKEN_KEY);
+    return readToken();
   },
 
   isAuthenticated() {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = readToken();
 
     if (token) {
       return true;

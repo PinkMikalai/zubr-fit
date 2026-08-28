@@ -74,6 +74,13 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated = true;
   }
 
+  // Calculé ici une seule fois pour éviter de recopier le même test dans chaque composant
+  // (Sidebar, NavLinks, Dashboard, pages séances...).
+  let isCoach = false;
+  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
+    isCoach = true;
+  }
+
   const value = {
     user,
     loading,
@@ -83,6 +90,7 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     logout,
     isAuthenticated,
+    isCoach,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

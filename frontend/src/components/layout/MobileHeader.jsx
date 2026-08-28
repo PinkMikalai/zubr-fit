@@ -17,7 +17,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // (voir styles/layout/mobile-header.css). Sur desktop, c'est Sidebar qui prend le relais.
 function MobileHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, isCoach, logout } = useAuth();
 
   const toggleMenu = () => {
     if (isMenuOpen) {
@@ -46,12 +46,6 @@ function MobileHeader() {
   let avatarSrc = userIcon;
   if (user && user.avatarUrl) {
     avatarSrc = `${API_URL}${user.avatarUrl}`;
-  }
-
-  // On prépare le rôle une seule fois, réutilisé pour le libellé et les liens réservés aux coachs
-  let isCoach = false;
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
   }
 
   let roleLabel = 'Client';

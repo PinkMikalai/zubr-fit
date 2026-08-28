@@ -3,7 +3,8 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
-use App\Repository\CoachClientRepository;
+use App\Http\RequestPayload;
+use App\Security\Voter\ClientProfileVoter;
 use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -11,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/profile', name: 'profile')]
@@ -20,55 +22,26 @@ final class UserController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validationService,
         private UserPasswordHasherInterface $passwordHasher,
-        private MediaUploader $mediaUploader,
-        private CoachClientRepository $coachClientRepository
+        private MediaUploader $mediaUploader
     ) {
     }
 
     #[Route('', name: 'profile_index', methods: ['GET'])]
-    public function show(): JsonResponse
+    public function show(#[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Non autorisé'
-            ], 401);
-        }
-
         return $this->json([
             'status' => true,
-            'data' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname(),
-                'phoneNumber' => $user->getPhoneNumber(),
-                'avatar' => $user->getAvatar(),
-                'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null,
-                'roles' => $user->getRoles(),
-                'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
-                'updatedAt' => $user->getUpdatedAt()?->format('Y-m-d H:i:s')
-            ],
+            'data' => $this->serializeUser($user),
             'message' => 'Profil récupéré avec succès'
         ]);
     }
 
     // Voir le profil d'un client précis : réservé au coach qui gère (ou a géré) ce client.
     // Sans cette vérification, n'importe quel utilisateur connecté pourrait consulter les
-    // coordonnées de n'importe qui juste en devinant un id dans l'URL.
+    // coordonnées de n'importe qui juste en devinant un id dans l'URL. (voir ClientProfileVoter)
     #[Route('/{id}', name: 'profile_show', methods: ['GET'])]
     public function showUser(int $id): JsonResponse
     {
-        $coach = $this->getUser();
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Non autorisé'
-            ], 401);
-        }
-
         $user = $this->em->getRepository(User::class)->find($id);
         if (!$user) {
             return $this->json([
@@ -77,49 +50,24 @@ final class UserController extends AbstractController
             ], 404);
         }
 
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true) || !$this->coachClientRepository->findRelation($coach, $user)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Accès refusé'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(ClientProfileVoter::VIEW, $user, 'Accès refusé');
 
         return $this->json([
             'status' => true,
-            'data' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname(),
-                'phoneNumber' => $user->getPhoneNumber(),
-                'avatar' => $user->getAvatar(),
-                'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null,
-                'roles' => $user->getRoles(),
-                'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
-                'updatedAt' => $user->getUpdatedAt()?->format('Y-m-d H:i:s')
-            ],
+            'data' => $this->serializeUser($user),
             'message' => 'Profil récupéré avec succès'
         ]);
     }
 
     //mettre à jour le profil d'un utilisateur
     #[Route('/update', name: 'update', methods: ['POST'])]
-    public function update(Request $request): JsonResponse
+    public function update(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
+        $avatarFile = $request->files->get('avatar');
 
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Non autorisé'
-            ], 401);
-        }
-
-        $avatarFile = $request->files->get('avatar') ?? $request->files->get('Avatar');
-        
         if ($avatarFile) {
             $result = $this->mediaUploader->uploadAvatar($avatarFile);
-            
+
             if (!$result['success']) {
                 return $this->json([
                     'status' => false,
@@ -137,13 +85,7 @@ final class UserController extends AbstractController
             $user->setAvatar($result['filename']);
         }
 
-        $contentType = $request->headers->get('Content-Type') ?? '';
-
-        if (str_contains($contentType, 'multipart/form-data')) {
-            $data = $request->request->all();
-        } else {
-            $data = json_decode($request->getContent(), true) ?? [];
-        }
+        $data = RequestPayload::extract($request);
 
         if (isset($data['firstname'])) {
             $user->setFirstname($data['firstname']);
@@ -193,16 +135,24 @@ final class UserController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => [
-                'id' => $user->getId(),
-                'email' => $user->getEmail(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname(),
-                'phoneNumber' => $user->getPhoneNumber(),
-                'avatar' => $user->getAvatar(),
-                'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null
-            ],
+            'data' => $this->serializeUser($user),
             'message' => 'Profil mis à jour avec succès'
         ]);
+    }
+
+    private function serializeUser(User $user): array
+    {
+        return [
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'firstname' => $user->getFirstname(),
+            'lastname' => $user->getLastname(),
+            'phoneNumber' => $user->getPhoneNumber(),
+            'avatar' => $user->getAvatar(),
+            'avatarUrl' => $user->getAvatar() ? '/uploads/avatars/' . $user->getAvatar() : null,
+            'roles' => $user->getRoles(),
+            'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
+            'updatedAt' => $user->getUpdatedAt()?->format('Y-m-d H:i:s'),
+        ];
     }
 }

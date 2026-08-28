@@ -8,6 +8,12 @@ const ERROR_MESSAGES = {
   'Expired JWT Token': 'Votre session a expiré, merci de vous reconnecter',
   'This email is already registered': 'Cette adresse e-mail est déjà utilisée',
   'Email already registered': 'Cette adresse e-mail est déjà utilisée',
+  // Refus d'accès renvoyés par les Voters / #[IsGranted] du backend
+  'Access Denied.': 'Accès refusé',
+  'Access denied': 'Accès refusé',
+  'You can only assign your own seances': 'Vous ne pouvez assigner que vos propres séances',
+  'You can only unassign your own seances': 'Vous ne pouvez désassigner que vos propres séances',
+  'You can only see clients of your own seances': 'Vous ne pouvez voir que les clients de vos propres séances',
 };
 
 // Renvoie le message français correspondant si on le connaît,

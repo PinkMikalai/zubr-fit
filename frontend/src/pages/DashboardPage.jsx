@@ -4,7 +4,7 @@ import ClientDashboard from '../components/dashboard/ClientDashboard';
 import PageMeta from '../components/layout/PageMeta';
 
 const DashboardPage = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, isCoach } = useAuth();
 
   if (loading) {
     return <p>Chargement...</p>;
@@ -12,11 +12,6 @@ const DashboardPage = () => {
 
   if (!user) {
     return null;
-  }
-
-  let isCoach = false;
-  if (user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
   }
 
   if (isCoach) {
