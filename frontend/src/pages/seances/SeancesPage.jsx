@@ -8,17 +8,12 @@ import { LEVEL_OPTIONS } from '../../utils/exerciseLabels';
 
 function SeancesPage() {
   const { seances, loading, error, remove } = useSeances();
-  const { user } = useAuth();
+  const { isCoach } = useAuth();
   const [statusFilter, setStatusFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('');
 
   if (loading) {
     return <p>Chargement...</p>;
-  }
-
-  let isCoach = false;
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
   }
 
   let visibleSeances = seances;

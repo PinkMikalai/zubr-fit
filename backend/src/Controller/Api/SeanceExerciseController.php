@@ -5,9 +5,8 @@ namespace App\Controller\Api;
 use App\Entity\Exercise;
 use App\Entity\Seance;
 use App\Entity\SeanceExercise;
-use App\Entity\User;
 use App\Repository\SeanceExerciseRepository;
-use App\Repository\SeanceUserRepository;
+use App\Security\Voter\SeanceVoter;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,8 +20,7 @@ final class SeanceExerciseController extends AbstractController
     public function __construct(
         private EntityManagerInterface $em,
         private ValidationService $validationService,
-        private SeanceExerciseRepository $seanceExerciseRepository,
-        private SeanceUserRepository $seanceUserRepository
+        private SeanceExerciseRepository $seanceExerciseRepository
     ) {
     }
 
@@ -164,18 +162,11 @@ final class SeanceExerciseController extends AbstractController
     }
 
     /**
-     * Résout la séance et vérifie que l'utilisateur connecté y a accès.
+     * Résout la séance et vérifie que l'utilisateur connecté y a accès (créateur ou assigné).
+     * Le contrôle d'accès est délégué à SeanceVoter ; un refus lève une AccessDeniedException (403).
      */
     private function resolveSeance(int $seanceId): Seance|JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($seanceId);
         if (!$seance) {
             return $this->json([
@@ -184,12 +175,7 @@ final class SeanceExerciseController extends AbstractController
             ], 404);
         }
 
-        if ($this->seanceUserRepository->count(['seance' => $seance, 'user' => $user]) === 0) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
 
         return $seance;
     }

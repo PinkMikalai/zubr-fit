@@ -6,14 +6,17 @@ use App\Entity\Exercise;
 use App\Entity\User;
 use App\Enum\Category;
 use App\Enum\Level;
+use App\Http\RequestPayload;
 use App\Repository\ExerciseRepository;
 use App\Repository\SeanceExerciseRepository;
+use App\Security\Voter\ExerciseVoter;
 use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/exercise', name: 'exercise')]
@@ -29,17 +32,8 @@ final class ExerciseController extends AbstractController
     }
 
     #[Route('/', name: 'exercise_index', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(#[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $data = $this->exerciseRepository->findAllByUserDESC($user);
 
         if (!$data) {
@@ -58,27 +52,12 @@ final class ExerciseController extends AbstractController
     }
 
     #[Route('/new', name: 'exercise_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $illustrationFile = $request->files->get('illustration');
         $videoFile = $request->files->get('video');
 
-        $contentType = $request->headers->get('Content-Type') ?? '';
-
-        if (str_contains($contentType, 'multipart/form-data')) {
-            $data = $request->request->all();
-        } else {
-            $data = json_decode($request->getContent(), true) ?? [];
-        }
+        $data = RequestPayload::extract($request);
 
         if (empty($data)) {
             return $this->json([
@@ -204,15 +183,6 @@ final class ExerciseController extends AbstractController
     #[Route('/{id}', name: 'exercise_show', methods: ['GET'])]
     public function show(int $id): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $exercise = $this->em->getRepository(Exercise::class)->find($id);
 
         if (!$exercise) {
@@ -222,12 +192,7 @@ final class ExerciseController extends AbstractController
             ], 404);
         }
 
-        if ($exercise->getUser() !== $user) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(ExerciseVoter::VIEW, $exercise, 'Access denied');
 
         return $this->json([
             'status' => true,
@@ -239,15 +204,6 @@ final class ExerciseController extends AbstractController
     #[Route('/update/{id}', name: 'exercise_update', methods: ['POST'])]
     public function update(int $id, Request $request): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $exercise = $this->em->getRepository(Exercise::class)->find($id);
 
         if (!$exercise) {
@@ -257,23 +213,12 @@ final class ExerciseController extends AbstractController
             ], 404);
         }
 
-        if ($exercise->getUser() !== $user) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(ExerciseVoter::EDIT, $exercise, 'Access denied');
 
         $illustrationFile = $request->files->get('illustration');
         $videoFile = $request->files->get('video');
 
-        $contentType = $request->headers->get('Content-Type') ?? '';
-
-        if (str_contains($contentType, 'multipart/form-data')) {
-            $data = $request->request->all();
-        } else {
-            $data = json_decode($request->getContent(), true) ?? [];
-        }
+        $data = RequestPayload::extract($request);
 
         if ($illustrationFile) {
             $result = $this->mediaUploader->uploadIllustration($illustrationFile);
@@ -316,11 +261,11 @@ final class ExerciseController extends AbstractController
         if (isset($data['name'])) {
             $exercise->setName($data['name']);
         }
-        
+
         if (isset($data['description'])) {
             $exercise->setDescription($data['description']);
         }
-        
+
         try {
             if (isset($data['category'])) {
                 $exercise->setCategory(Category::from($data['category']));
@@ -357,15 +302,6 @@ final class ExerciseController extends AbstractController
     #[Route('/{id}', name: 'exercise_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $exercise = $this->em->getRepository(Exercise::class)->find($id);
 
         if (!$exercise) {
@@ -375,12 +311,7 @@ final class ExerciseController extends AbstractController
             ], 404);
         }
 
-        if ($exercise->getUser() !== $user) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(ExerciseVoter::EDIT, $exercise, 'Access denied');
 
         // Contrairement à la suppression d'une séance (où les lignes lui appartiennent),
         // un exercice est partagé par plusieurs séances : le supprimer en cascade retirerait

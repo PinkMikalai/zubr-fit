@@ -1,14 +1,8 @@
-import api from './api';
-import authService from './authService';
+import api, { apiList } from './api';
 
 const seanceExerciseService = {
   async list(seanceId) {
-    const data = await api(`/seance/${seanceId}/exercise`, { token: authService.getToken() });
-
-    if (!data.data) {
-      return [];
-    }
-    return data.data;
+    return apiList(`/seance/${seanceId}/exercise`);
   },
 
   async add(seanceId, { exerciseId, sets, reps, position, comment }) {
@@ -21,7 +15,6 @@ const seanceExerciseService = {
         position: position,
         comment: comment,
       },
-      token: authService.getToken(),
     });
     return data.data;
   },
@@ -30,16 +23,12 @@ const seanceExerciseService = {
     const data = await api(`/seance/${seanceId}/exercise/${id}`, {
       method: 'PUT',
       body: { sets: sets, reps: reps, position: position, comment: comment },
-      token: authService.getToken(),
     });
     return data.data;
   },
 
   async remove(seanceId, id) {
-    return api(`/seance/${seanceId}/exercise/${id}`, {
-      method: 'DELETE',
-      token: authService.getToken(),
-    });
+    return api(`/seance/${seanceId}/exercise/${id}`, { method: 'DELETE' });
   },
 };
 

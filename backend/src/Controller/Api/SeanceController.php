@@ -7,14 +7,17 @@ use App\Entity\SeanceExercise;
 use App\Entity\SeanceUser;
 use App\Entity\User;
 use App\Enum\Level;
-use App\Repository\CoachClientRepository;
 use App\Repository\SeanceRepository;
 use App\Repository\SeanceUserRepository;
+use App\Security\Voter\ClientProfileVoter;
+use App\Security\Voter\SeanceVoter;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/seance', name: 'seance')]
@@ -24,24 +27,16 @@ final class SeanceController extends AbstractController
         private EntityManagerInterface $em,
         private ValidationService $validationService,
         private SeanceRepository $seanceRepository,
-        private SeanceUserRepository $seanceUserRepository,
-        private CoachClientRepository $coachClientRepository
+        private SeanceUserRepository $seanceUserRepository
     ) {
     }
 
     // Les séances d'un client précis, vues par son coach (page "Voir profil" d'un client).
     // Déclarée AVANT /{id} pour que "client" ne soit jamais interprété comme un id de séance.
     #[Route('/client/{clientId}', name: 'seance_by_client', methods: ['GET'], requirements: ['clientId' => '\d+'])]
+    #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent consulter les séances d\'un client.')]
     public function byClient(int $clientId): JsonResponse
     {
-        $coach = $this->getUser();
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $client = $this->em->getRepository(User::class)->find($clientId);
         if (!$client) {
             return $this->json([
@@ -50,12 +45,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true) || !$this->coachClientRepository->findRelation($coach, $client)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(ClientProfileVoter::VIEW, $client, 'Access denied');
 
         $seances = $this->seanceRepository->findAllByUserDESC($client);
 
@@ -67,17 +57,8 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/', name: 'seance_index', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(#[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seances = $this->seanceRepository->findAllByUserDESC($user);
 
         if (!$seances) {
@@ -96,17 +77,8 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/new', name: 'seance_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $data = json_decode($request->getContent(), true);
 
         if (!$data) {
@@ -176,15 +148,6 @@ final class SeanceController extends AbstractController
     #[Route('/{id}', name: 'seance_show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(int $id): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -194,12 +157,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $user)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::VIEW, $seance, 'Access denied');
 
         return $this->json([
             'status' => true,
@@ -211,15 +169,6 @@ final class SeanceController extends AbstractController
     #[Route('/{id}', name: 'seance_update', methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -229,12 +178,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $user)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
 
         $data = json_decode($request->getContent(), true);
 
@@ -278,15 +222,6 @@ final class SeanceController extends AbstractController
     #[Route('/{id}', name: 'seance_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -296,12 +231,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $user)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
 
         // On supprime d'abord les exercices et les assignations liés à la séance : la base de données
         // refuserait sinon de supprimer la séance à cause des clés étrangères (pas de cascade en base).
@@ -327,15 +257,6 @@ final class SeanceController extends AbstractController
     #[Route('/{id}/complete', name: 'seance_complete', methods: ['PUT'])]
     public function complete(int $id): JsonResponse
     {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -345,12 +266,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $user)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Access denied'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
 
         $seance->setCompletedAt(new \DateTimeImmutable());
         $this->em->flush();
@@ -363,24 +279,9 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/{id}/assign', name: 'seance_assign', methods: ['POST'])]
+    #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent assigner des séances.')]
     public function assign(int $id, Request $request): JsonResponse
     {
-        $coach = $this->getUser();
-
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Only coaches can assign seances'
-            ], 403);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -390,12 +291,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $coach)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'You can only assign your own seances'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::ASSIGN, $seance, 'You can only assign your own seances');
 
         $data = json_decode($request->getContent(), true);
         $userIds = $this->extractUserIds($data);
@@ -437,24 +333,9 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/{id}/assign', name: 'seance_unassign', methods: ['DELETE'])]
+    #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent désassigner des séances.')]
     public function unassign(int $id, Request $request): JsonResponse
     {
-        $coach = $this->getUser();
-
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Only coaches can unassign seances'
-            ], 403);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -464,12 +345,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $coach)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'You can only unassign your own seances'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::ASSIGN, $seance, 'You can only unassign your own seances');
 
         $data = json_decode($request->getContent(), true);
         $userIds = $this->extractUserIds($data);
@@ -501,24 +377,9 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/{id}/assignees', name: 'seance_assignees', methods: ['GET'])]
+    #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent voir à qui une séance est assignée.')]
     public function assignees(int $id): JsonResponse
     {
-        $coach = $this->getUser();
-
-        if (!$coach instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if (!in_array('ROLE_COACH', $coach->getRoles(), true)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Only coaches can see who a seance is assigned to'
-            ], 403);
-        }
-
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
         if (!$seance) {
@@ -528,12 +389,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        if (!$this->isLinked($seance, $coach)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'You can only see clients of your own seances'
-            ], 403);
-        }
+        $this->denyAccessUnlessGranted(SeanceVoter::ASSIGN, $seance, 'You can only see clients of your own seances');
 
         return $this->json([
             'status' => true,
@@ -543,7 +399,8 @@ final class SeanceController extends AbstractController
     }
 
     /**
-     * Vérifie si un utilisateur est lié à une séance (créateur ou assigné).
+     * Vérifie si un utilisateur est déjà lié à une séance (créateur ou assigné).
+     * Sert à ne pas créer de doublon lors d'une assignation.
      */
     private function isLinked(Seance $seance, User $user): bool
     {
