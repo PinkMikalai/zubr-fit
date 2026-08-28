@@ -1,4 +1,5 @@
 import { translateErrorMessage } from '../utils/errorMessages';
+import { getToken } from '../utils/tokenStorage';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -14,7 +15,13 @@ async function request(endpoint, options) {
   }
 
   const body = options.body;
-  const token = options.token;
+
+  // Le token JWT : soit on nous en passe un explicitement, soit on prend celui
+  // stocké après la connexion. Comme ça, les services n'ont plus à le répéter.
+  let token = options.token;
+  if (!token) {
+    token = getToken();
+  }
 
   let isFormData = false;
   if (body instanceof FormData) {
@@ -82,6 +89,16 @@ async function request(endpoint, options) {
   }
 
   return data;
+}
+
+// Variante pour les endpoints qui renvoient une liste : renvoie toujours un tableau,
+// même si le backend n'a rien mis dans "data".
+export async function apiList(endpoint, options) {
+  const data = await request(endpoint, options);
+  if (!data.data) {
+    return [];
+  }
+  return data.data;
 }
 
 export default request;

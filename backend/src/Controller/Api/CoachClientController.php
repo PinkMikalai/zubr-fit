@@ -9,9 +9,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/coach/clients', name: 'coach_client_')]
+#[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent gérer une liste de clients.')]
 final class CoachClientController extends AbstractController
 {
     public function __construct(
@@ -21,13 +24,8 @@ final class CoachClientController extends AbstractController
     }
 
     #[Route('', name: 'index', methods: ['GET'])]
-    public function index(): JsonResponse
+    public function index(#[CurrentUser] User $coach): JsonResponse
     {
-        $coach = $this->resolveCoach();
-        if ($coach instanceof JsonResponse) {
-            return $coach;
-        }
-
         $clients = $this->coachClientRepository->findActiveByCoach($coach);
 
         return $this->json([
@@ -38,13 +36,8 @@ final class CoachClientController extends AbstractController
     }
 
     #[Route('/history', name: 'history', methods: ['GET'])]
-    public function history(): JsonResponse
+    public function history(#[CurrentUser] User $coach): JsonResponse
     {
-        $coach = $this->resolveCoach();
-        if ($coach instanceof JsonResponse) {
-            return $coach;
-        }
-
         $history = $this->coachClientRepository->findHistoryByCoach($coach);
 
         return $this->json([
@@ -55,13 +48,8 @@ final class CoachClientController extends AbstractController
     }
 
     #[Route('', name: 'add', methods: ['POST'])]
-    public function add(Request $request): JsonResponse
+    public function add(Request $request, #[CurrentUser] User $coach): JsonResponse
     {
-        $coach = $this->resolveCoach();
-        if ($coach instanceof JsonResponse) {
-            return $coach;
-        }
-
         $data = json_decode($request->getContent(), true);
         if (empty($data['client_id'])) {
             return $this->json([
@@ -109,13 +97,8 @@ final class CoachClientController extends AbstractController
     }
 
     #[Route('/{id}', name: 'remove', methods: ['DELETE'], requirements: ['id' => '\d+'])]
-    public function remove(int $id): JsonResponse
+    public function remove(int $id, #[CurrentUser] User $coach): JsonResponse
     {
-        $coach = $this->resolveCoach();
-        if ($coach instanceof JsonResponse) {
-            return $coach;
-        }
-
         $coachClient = $this->coachClientRepository->find($id);
 
         if (!$coachClient || $coachClient->getCoach()?->getId() !== $coach->getId()) {
@@ -140,30 +123,6 @@ final class CoachClientController extends AbstractController
             'data' => $this->serialize($coachClient),
             'message' => 'Client removed from active list, kept in history'
         ]);
-    }
-
-    /**
-     * Vérifie que l'utilisateur connecté est bien un coach.
-     */
-    private function resolveCoach(): User|JsonResponse
-    {
-        $user = $this->getUser();
-
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
-
-        if (!in_array('ROLE_COACH', $user->getRoles(), true)) {
-            return $this->json([
-                'status' => false,
-                'message' => 'Only coaches can manage a client list'
-            ], 403);
-        }
-
-        return $user;
     }
 
     private function serialize(CoachClient $coachClient): array

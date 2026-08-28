@@ -12,7 +12,7 @@ import userIcon from '../../assets/icons/user.svg';
 // hideAuthLinks est optionnel : la Sidebar le met à true, car Connexion/Inscription
 // sont déjà affichés dans DesktopHeader sur desktop — pour ne pas les avoir deux fois.
 function NavLinks({ hideAuthLinks }) {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, isCoach } = useAuth();
 
   // NavLink (au lieu de Link) ajoute automatiquement une classe quand le lien correspond
   // à la page actuelle, ce qui nous permet de le mettre en surbrillance.
@@ -22,12 +22,6 @@ function NavLinks({ hideAuthLinks }) {
     }
     return 'nav-link';
   };
-
-  // On prépare le rôle une seule fois, réutilisé pour les liens réservés aux coachs
-  let isCoach = false;
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
-  }
 
   // "Clients" et "Exercices" (gestion de la bibliothèque) sont réservés aux coachs
   let clientsLink = null;

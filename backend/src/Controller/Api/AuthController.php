@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Http\RequestPayload;
 use App\Service\MediaUploader;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,15 +29,12 @@ class AuthController extends AbstractController
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(Request $request): JsonResponse
     {
-        $avatarFile = $request->files->get('avatar') ?? $request->files->get('Avatar');
-        
-        $contentType = $request->headers->get('Content-Type') ?? '';
+        // On récupère le fichier maintenant, mais on ne l'uploade qu'À LA FIN,
+        // une fois toutes les validations passées : pas besoin de nettoyer un fichier
+        // déjà écrit sur le disque si l'inscription échoue plus loin.
+        $avatarFile = $request->files->get('avatar');
 
-        if (str_contains($contentType, 'multipart/form-data')) {
-            $data = $request->request->all();
-        } else {
-            $data = json_decode($request->getContent(), true) ?? [];
-        }
+        $data = RequestPayload::extract($request);
 
         if (empty($data)) {
             return $this->json([
@@ -82,33 +80,7 @@ class AuthController extends AbstractController
             ], 400);
         }
 
-        $avatarFilename = null;
-        if ($avatarFile) {
-            $result = $this->mediaUploader->uploadAvatar($avatarFile);
-            
-            if (!$result['success']) {
-                return $this->json([
-                    'status' => false,
-                    'message' => $result['error'],
-                    'code' => $result['code']
-                ], 400);
-            }
-            
-            $avatarFilename = $result['filename'];
-        }
-
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setFirstname($data['firstname']);
-        $user->setLastname($data['lastname']);
-        $user->setPhoneNumber($data['phoneNumber'] ?? null);
-        $user->setAvatar($avatarFilename);
-
         if (!isset($data['role']) || empty($data['role'])) {
-            if ($avatarFilename) {
-                $this->mediaUploader->deleteAvatar($avatarFilename);
-            }
-            
             return $this->json([
                 'status' => false,
                 'message' => 'Role is required',
@@ -121,16 +93,17 @@ class AuthController extends AbstractController
         ];
 
         if (!isset($allowedRoles[$data['role']])) {
-            if ($avatarFilename) {
-                $this->mediaUploader->deleteAvatar($avatarFilename);
-            }
-            
             return $this->json([
                 'status' => false,
                 'message' => 'Invalid role. Must be "user" or "coach"',
             ], 422);
         }
 
+        $user = new User();
+        $user->setEmail($data['email']);
+        $user->setFirstname($data['firstname']);
+        $user->setLastname($data['lastname']);
+        $user->setPhoneNumber($data['phoneNumber'] ?? null);
         $user->setRoles([$allowedRoles[$data['role']]]);
 
         $hashedPassword = $this->passwordHasher->hashPassword(
@@ -141,9 +114,6 @@ class AuthController extends AbstractController
 
         $errorResponse = $this->validationService->getErrorResponse($user);
         if ($errorResponse) {
-            if ($avatarFilename) {
-                $this->mediaUploader->deleteAvatar($avatarFilename);
-            }
             return $errorResponse;
         }
 
@@ -152,14 +122,27 @@ class AuthController extends AbstractController
             ->findOneBy(['email' => $user->getEmail()]);
 
         if ($existingUser) {
-            if ($avatarFilename) {
-                $this->mediaUploader->deleteAvatar($avatarFilename);
-            }
-            
             return $this->json([
                 'status' => false,
                 'message' => 'Email already registered',
             ], 409);
+        }
+
+        // Toutes les validations sont passées : on peut maintenant écrire l'avatar sur le disque.
+        $avatarFilename = null;
+        if ($avatarFile) {
+            $result = $this->mediaUploader->uploadAvatar($avatarFile);
+
+            if (!$result['success']) {
+                return $this->json([
+                    'status' => false,
+                    'message' => $result['error'],
+                    'code' => $result['code']
+                ], 400);
+            }
+
+            $avatarFilename = $result['filename'];
+            $user->setAvatar($avatarFilename);
         }
 
         $this->em->persist($user);

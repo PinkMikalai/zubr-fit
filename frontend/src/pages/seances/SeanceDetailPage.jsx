@@ -24,7 +24,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 function SeanceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { isCoach } = useAuth();
 
   const [seance, setSeance] = useState(null);
   const [lines, setLines] = useState([]);
@@ -50,10 +50,10 @@ function SeanceDetailPage() {
 
   // Chargé séparément, seulement si l'utilisateur est un coach (le backend refuse sinon)
   useEffect(() => {
-    if (user && user.roles && user.roles.includes('ROLE_COACH')) {
+    if (isCoach) {
       seanceService.getAssignees(id).then(setAssignees);
     }
-  }, [id, user]);
+  }, [id, isCoach]);
 
   const handleDelete = async () => {
     await seanceService.remove(id);
@@ -82,13 +82,8 @@ function SeanceDetailPage() {
     return null;
   }
 
-  // La gestion (modifier/supprimer/assignation) est réservée au coach.
+  // La gestion (modifier/supprimer/assignation) est réservée au coach (voir isCoach du contexte).
   // Un client voit sa séance en lecture seule, mais peut la marquer comme terminée.
-  let isCoach = false;
-  if (user && user.roles && user.roles.includes('ROLE_COACH')) {
-    isCoach = true;
-  }
-
   let statusLabel = 'En cours';
   if (seance.completedAt) {
     statusLabel = `Terminée le ${formatDate(seance.completedAt)}`;

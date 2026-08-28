@@ -31,11 +31,12 @@ security:
             provider: app_user_provider
 
     access_control:
+        # Routes publiques : inscription et connexion.
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/register, roles: PUBLIC_ACCESS }
-        - { path: ^/api/auth/me, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/auth/logout, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/coach, roles: ROLE_COACH }
+        # Tout le reste de l'API exige un JWT valide.
+        # Les rôles fins (ROLE_COACH) et la propriété des ressources sont gérés
+        # dans les contrôleurs via #[IsGranted] et les Voters (src/Security/Voter).
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:

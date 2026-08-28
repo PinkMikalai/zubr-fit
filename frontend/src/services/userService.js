@@ -1,5 +1,4 @@
-import api from './api';
-import authService from './authService';
+import api, { apiList } from './api';
 
 const userService = {
   // Liste des utilisateurs "client" potentiels (réservé aux coachs, voir backend UserSearchController).
@@ -12,17 +11,12 @@ const userService = {
       endpoint = `/users?q=${encodeURIComponent(query)}`;
     }
 
-    const data = await api(endpoint, { token: authService.getToken() });
-
-    if (!data.data) {
-      return [];
-    }
-    return data.data;
+    return apiList(endpoint);
   },
 
   // Le profil public d'un utilisateur précis (utilisé par la fiche "Voir profil" d'un client)
   async getById(id) {
-    const data = await api(`/profile/${id}`, { token: authService.getToken() });
+    const data = await api(`/profile/${id}`);
     return data.data;
   },
 };
