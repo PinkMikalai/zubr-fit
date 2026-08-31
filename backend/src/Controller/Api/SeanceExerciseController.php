@@ -27,7 +27,8 @@ final class SeanceExerciseController extends AbstractController
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(int $seanceId): JsonResponse
     {
-        $seance = $this->resolveSeance($seanceId);
+        // Lecture seule : accessible à toute personne liée à la séance (client assigné inclus).
+        $seance = $this->resolveSeance($seanceId, SeanceVoter::VIEW);
         if ($seance instanceof JsonResponse) {
             return $seance;
         }
@@ -44,7 +45,8 @@ final class SeanceExerciseController extends AbstractController
     #[Route('', name: 'add', methods: ['POST'])]
     public function add(int $seanceId, Request $request): JsonResponse
     {
-        $seance = $this->resolveSeance($seanceId);
+        // Modifier la structure de la séance : réservé au coach.
+        $seance = $this->resolveSeance($seanceId, SeanceVoter::EDIT);
         if ($seance instanceof JsonResponse) {
             return $seance;
         }
@@ -102,7 +104,7 @@ final class SeanceExerciseController extends AbstractController
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
     public function update(int $seanceId, int $id, Request $request): JsonResponse
     {
-        $seance = $this->resolveSeance($seanceId);
+        $seance = $this->resolveSeance($seanceId, SeanceVoter::EDIT);
         if ($seance instanceof JsonResponse) {
             return $seance;
         }
@@ -142,7 +144,7 @@ final class SeanceExerciseController extends AbstractController
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $seanceId, int $id): JsonResponse
     {
-        $seance = $this->resolveSeance($seanceId);
+        $seance = $this->resolveSeance($seanceId, SeanceVoter::EDIT);
         if ($seance instanceof JsonResponse) {
             return $seance;
         }
@@ -162,10 +164,12 @@ final class SeanceExerciseController extends AbstractController
     }
 
     /**
-     * Résout la séance et vérifie que l'utilisateur connecté y a accès (créateur ou assigné).
-     * Le contrôle d'accès est délégué à SeanceVoter ; un refus lève une AccessDeniedException (403).
+     * Résout la séance et vérifie l'accès via SeanceVoter (un refus lève une AccessDeniedException 403).
+     *
+     * @param string $permission SeanceVoter::VIEW pour la lecture (client assigné OK),
+     *                           SeanceVoter::EDIT pour les modifications (coach uniquement).
      */
-    private function resolveSeance(int $seanceId): Seance|JsonResponse
+    private function resolveSeance(int $seanceId, string $permission): Seance|JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($seanceId);
         if (!$seance) {
@@ -175,7 +179,7 @@ final class SeanceExerciseController extends AbstractController
             ], 404);
         }
 
-        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
+        $this->denyAccessUnlessGranted($permission, $seance, 'Access denied');
 
         return $seance;
     }
