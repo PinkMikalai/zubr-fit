@@ -4,7 +4,7 @@ import EditProfileForm from '../components/profile/EditProfileForm';
 import ProfileInfoCard from '../components/profile/ProfileInfoCard';
 import PageMeta from '../components/layout/PageMeta';
 
-// Traduit le rôle technique (ROLE_COACH / ROLE_USER) en texte lisible, avec un if/else classique
+// Traduit le rôle technique (ROLE_COACH / ROLE_CLIENT) en texte lisible, avec un if/else classique
 function getRoleLabel(roles) {
   if (roles && roles.includes('ROLE_COACH')) {
     return 'Coach';

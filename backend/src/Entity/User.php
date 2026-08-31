@@ -34,7 +34,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string>
      */
     #[ORM\Column(type: 'json')]
-    private array $roles = ['ROLE_USER'];
+    private array $roles = ['ROLE_CLIENT'];
 
     #[ORM\Column]
     #[Ignore]
@@ -115,12 +115,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getRoles(): array
     {
-        $roles = $this->roles;
-
-        // Chaque utilisateur possède au minimum ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        // Un seul rôle métier possible : ROLE_COACH ou ROLE_CLIENT (voir cahier des charges).
+        return array_unique($this->roles);
     }
 
     public function setRoles(array $roles): static

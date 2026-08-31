@@ -266,7 +266,7 @@ final class SeanceController extends AbstractController
             ], 404);
         }
 
-        $this->denyAccessUnlessGranted(SeanceVoter::EDIT, $seance, 'Access denied');
+        $this->denyAccessUnlessGranted(SeanceVoter::COMPLETE, $seance, 'Access denied');
 
         $seance->setCompletedAt(new \DateTimeImmutable());
         $this->em->flush();

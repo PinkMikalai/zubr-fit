@@ -147,7 +147,7 @@ function RegisterForm() {
             <img src={dumbbellIcon} alt="" />
             <span>Coach</span>
           </button>
-          <button type="button" className={getRoleButtonClass(form.role, 'user')} onClick={() => selectRole('user')}>
+          <button type="button" className={getRoleButtonClass(form.role, 'client')} onClick={() => selectRole('client')}>
             <img src={userIcon} alt="" />
             <span>Client</span>
           </button>

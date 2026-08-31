@@ -10,7 +10,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * Décide qui a le droit de voir / modifier / supprimer un exercice.
  *
- * Règle métier : seul le propriétaire (celui qui l'a créé) y a accès.
+ * Règle métier : la bibliothèque est visible par tout le monde (lecture seule),
+ * mais seul le propriétaire (celui qui l'a créé) peut la modifier ou la supprimer.
  *
  * Utilisation dans un contrôleur :
  *   $this->denyAccessUnlessGranted(ExerciseVoter::EDIT, $exercise);
@@ -34,6 +35,12 @@ class ExerciseVoter extends Voter
         $user = $token->getUser();
         if (!$user instanceof User) {
             return false;
+        }
+
+        // La bibliothèque d'exercices est consultable en lecture seule par tout le monde
+        // (coach ou client) — seule la modification est réservée au créateur.
+        if ($attribute === self::VIEW) {
+            return true;
         }
 
         return $subject->getUser() === $user;
