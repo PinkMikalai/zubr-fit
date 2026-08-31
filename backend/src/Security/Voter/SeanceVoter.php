@@ -24,6 +24,7 @@ class SeanceVoter extends Voter
     public const VIEW = 'SEANCE_VIEW';
     public const EDIT = 'SEANCE_EDIT';
     public const ASSIGN = 'SEANCE_ASSIGN';
+    public const COMPLETE = 'SEANCE_COMPLETE';
 
     public function __construct(
         private SeanceUserRepository $seanceUserRepository,
@@ -33,7 +34,7 @@ class SeanceVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!in_array($attribute, [self::VIEW, self::EDIT, self::ASSIGN], true)) {
+        if (!in_array($attribute, [self::VIEW, self::EDIT, self::ASSIGN, self::COMPLETE], true)) {
             return false;
         }
 
@@ -47,8 +48,14 @@ class SeanceVoter extends Voter
             return false;
         }
 
-        // Assigner / désassigner des clients : réservé aux coachs.
-        if ($attribute === self::ASSIGN && !$this->security->isGranted('ROLE_COACH')) {
+        // Modifier le contenu / supprimer / assigner une séance : réservé aux coachs.
+        if (in_array($attribute, [self::EDIT, self::ASSIGN], true) && !$this->security->isGranted('ROLE_COACH')) {
+            return false;
+        }
+
+        // Marquer une séance comme terminée : réservé aux clients (donc interdit aux coachs,
+        // même si le coach créateur est lui aussi "lié" à sa propre séance).
+        if ($attribute === self::COMPLETE && $this->security->isGranted('ROLE_COACH')) {
             return false;
         }
 
