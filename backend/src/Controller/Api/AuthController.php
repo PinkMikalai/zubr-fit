@@ -88,14 +88,14 @@ class AuthController extends AbstractController
         }
 
         $allowedRoles = [
-            'user' => 'ROLE_USER',
+            'client' => 'ROLE_CLIENT',
             'coach' => 'ROLE_COACH',
         ];
 
         if (!isset($allowedRoles[$data['role']])) {
             return $this->json([
                 'status' => false,
-                'message' => 'Invalid role. Must be "user" or "coach"',
+                'message' => 'Invalid role. Must be "client" or "coach"',
             ], 422);
         }
 
