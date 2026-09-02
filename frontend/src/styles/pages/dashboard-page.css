@@ -1,42 +1,79 @@
-.dashboard-stats {
+/* Tableau de bord du coach : 3 cartes de domaine (Clients / Séances / Exercices),
+   chacune avec un chiffre clé et un bouton d'action. Voir CoachDashboard.jsx. */
+
+.coach-domains {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-md);
-  margin: var(--space-lg) 0;
+  margin-top: var(--space-lg);
 }
 
-/* La mise en forme générale (fond, ombre, coins arrondis) vient de la classe partagée .card */
-.dashboard-stat {
-  text-align: center;
+/* Le fond / la bordure / l'ombre viennent de la classe partagée .card */
+.domain-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-lg);
 }
 
-.dashboard-stat-value {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: 0;
+.domain-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
-.dashboard-stat-label {
-  color: var(--color-text-light);
-  font-size: 13px;
-  margin-bottom: 0;
-}
-
-.dashboard-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-
-.dashboard-action {
-  text-decoration: none;
-  color: var(--color-primary);
-  font-weight: 600;
-  text-align: center;
-}
-
-.dashboard-action:hover {
+.domain-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
   background: var(--color-primary-light);
+  flex-shrink: 0;
+}
+
+.domain-card-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+.domain-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-heading);
+  text-decoration: none;
+}
+
+.domain-card-title:hover {
+  color: var(--color-primary);
+}
+
+.domain-card-count {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.domain-card-count-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-light);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.domain-card-detail {
+  font-size: 13px;
+  color: var(--color-text-light);
+  margin-bottom: var(--space-md);
+}
+
+/* Le bouton reste collé en bas même si une carte a un texte de détail plus court */
+.domain-card-action {
+  margin-top: auto;
+  width: 100%;
 }
