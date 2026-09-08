@@ -40,9 +40,6 @@ class Seance
     #[Assert\NotBlank(message: 'Le niveau est obligatoire')]
     private ?Level $level = null;
 
-    #[ORM\Column(name: 'completed_at', nullable: true)]
-    private ?\DateTimeImmutable $completedAt = null;
-
     #[ORM\Column(name: 'created_at')]
     private ?\DateTimeImmutable $createdAt = null;
 
@@ -98,18 +95,6 @@ class Seance
     public function setLevel(Level $level): static
     {
         $this->level = $level;
-
-        return $this;
-    }
-
-    public function getCompletedAt(): ?\DateTimeImmutable
-    {
-        return $this->completedAt;
-    }
-
-    public function setCompletedAt(?\DateTimeImmutable $completedAt): static
-    {
-        $this->completedAt = $completedAt;
 
         return $this;
     }

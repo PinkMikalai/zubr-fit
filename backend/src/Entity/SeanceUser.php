@@ -29,6 +29,12 @@ class SeanceUser
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    // Quand cet utilisateur a marqué SA séance comme terminée.
+    // Le statut vit ici (sur l'assignation) et pas sur Seance : si une séance est
+    // assignée à plusieurs clients, chacun a son propre statut.
+    #[ORM\Column(name: 'completed_at', nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +67,18 @@ class SeanceUser
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(?\DateTimeImmutable $completedAt): static
+    {
+        $this->completedAt = $completedAt;
+
+        return $this;
     }
 
     #[ORM\PrePersist]

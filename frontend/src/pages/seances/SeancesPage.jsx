@@ -16,13 +16,29 @@ function SeancesPage() {
     return <p>Chargement...</p>;
   }
 
+  // "Terminée" ne veut pas dire la même chose selon le rôle :
+  //  - client : j'ai marqué MA séance comme faite
+  //  - coach  : tous les clients assignés l'ont terminée
+  const isSeanceDone = (seance) => {
+    if (isCoach) {
+      if (seance.assigneeCount === 0) {
+        return false;
+      }
+      return seance.completedCount === seance.assigneeCount;
+    }
+    if (seance.completedAt) {
+      return true;
+    }
+    return false;
+  };
+
   let visibleSeances = seances;
 
   // Par statut (en cours / terminée)
   if (statusFilter === 'ongoing') {
-    visibleSeances = visibleSeances.filter((seance) => !seance.completedAt);
+    visibleSeances = visibleSeances.filter((seance) => !isSeanceDone(seance));
   } else if (statusFilter === 'completed') {
-    visibleSeances = visibleSeances.filter((seance) => seance.completedAt);
+    visibleSeances = visibleSeances.filter((seance) => isSeanceDone(seance));
   }
 
   // Et enfin par niveau de difficulté
@@ -62,7 +78,7 @@ function SeancesPage() {
 
           return (
             <li key={seance.id}>
-              <SeanceCard seance={seance} onDelete={onDelete} />
+              <SeanceCard seance={seance} onDelete={onDelete} showAggregate={isCoach} />
             </li>
           );
         })}
