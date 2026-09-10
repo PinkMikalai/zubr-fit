@@ -34,9 +34,8 @@ final class ExerciseController extends AbstractController
     #[Route('/', name: 'exercise_index', methods: ['GET'])]
     public function index(#[CurrentUser] User $user): JsonResponse
     {
-        // $user n'est pas utilisé pour filtrer : la bibliothèque est visible par tous
-        // les utilisateurs connectés, le paramètre sert juste à imposer l'authentification.
-        $data = $this->exerciseRepository->findAllDESC();
+        // Chaque coach ne voit que SES exercices : la bibliothèque n'est pas partagée.
+        $data = $this->exerciseRepository->findAllByUserDESC($user);
 
         if (!$data) {
             return $this->json([

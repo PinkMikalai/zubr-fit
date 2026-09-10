@@ -6,6 +6,7 @@ use App\Entity\Exercise;
 use App\Entity\Seance;
 use App\Entity\SeanceExercise;
 use App\Repository\SeanceExerciseRepository;
+use App\Security\Voter\ExerciseVoter;
 use App\Security\Voter\SeanceVoter;
 use App\Service\ValidationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,6 +74,9 @@ final class SeanceExerciseController extends AbstractController
                 'message' => 'Exercise not found'
             ], 404);
         }
+
+        // On ne peut mettre dans une séance que ses propres exercices.
+        $this->denyAccessUnlessGranted(ExerciseVoter::EDIT, $exercise, 'Cet exercice ne vous appartient pas');
 
         $seanceExercise = new SeanceExercise();
         $seanceExercise->setSeance($seance);

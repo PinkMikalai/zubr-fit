@@ -18,12 +18,14 @@ class ExerciseRepository extends ServiceEntityRepository
     }
 
     /**
-     * Toute la bibliothèque d'exercices : elle est visible en lecture seule par tout
-     * le monde (coach ou client), pas seulement par celui qui les a créés.
+     * Les exercices créés par un coach donné. La bibliothèque n'est PAS partagée :
+     * chaque coach ne voit et n'utilise que ses propres exercices.
      */
-    public function findAllDESC(): array
+    public function findAllByUserDESC(User $user): array
     {
         return $this->createQueryBuilder('e')
+            ->where('e.user = :user')
+            ->setParameter('user', $user)
             ->orderBy('e.name', 'DESC')
             ->getQuery()
             ->getResult();
