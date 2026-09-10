@@ -49,9 +49,10 @@ final class SeanceController extends AbstractController
 
         $seances = $this->seanceRepository->findAllByUserDESC($client);
 
+        // Le coach regarde les séances DU client : le statut affiché est celui du client.
         return $this->json([
             'status' => true,
-            'data' => array_map($this->serializeListItem(...), $seances),
+            'data' => array_map(fn (Seance $seance) => $this->serializeSeance($seance, $client), $seances),
             'message' => 'Seances fetched successfully'
         ]);
     }
@@ -71,7 +72,7 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => array_map($this->serializeListItem(...), $seances),
+            'data' => array_map(fn (Seance $seance) => $this->serializeSeance($seance, $user), $seances),
             'message' => 'Seances fetched successfully'
         ]);
     }
@@ -140,13 +141,13 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $user),
             'message' => 'Seance created successfully'
         ], 201);
     }
 
     #[Route('/{id}', name: 'seance_show', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function show(int $id): JsonResponse
+    public function show(int $id, #[CurrentUser] User $user): JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
@@ -161,13 +162,13 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $user),
             'message' => 'Seance found'
         ]);
     }
 
     #[Route('/{id}', name: 'seance_update', methods: ['PUT'])]
-    public function update(int $id, Request $request): JsonResponse
+    public function update(int $id, Request $request, #[CurrentUser] User $user): JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
@@ -214,7 +215,7 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $user),
             'message' => 'Seance updated successfully'
         ]);
     }
@@ -255,7 +256,7 @@ final class SeanceController extends AbstractController
     }
 
     #[Route('/{id}/complete', name: 'seance_complete', methods: ['PUT'])]
-    public function complete(int $id): JsonResponse
+    public function complete(int $id, #[CurrentUser] User $user): JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
@@ -268,19 +269,29 @@ final class SeanceController extends AbstractController
 
         $this->denyAccessUnlessGranted(SeanceVoter::COMPLETE, $seance, 'Access denied');
 
-        $seance->setCompletedAt(new \DateTimeImmutable());
+        // Le statut est porté par l'assignation : on marque terminée SA propre ligne.
+        // (le Voter COMPLETE garantit déjà que l'utilisateur est lié à la séance)
+        $link = $this->seanceUserRepository->findOneBy(['seance' => $seance, 'user' => $user]);
+        if (!$link) {
+            return $this->json([
+                'status' => false,
+                'message' => 'Cette séance ne vous est pas assignée'
+            ], 403);
+        }
+
+        $link->setCompletedAt(new \DateTimeImmutable());
         $this->em->flush();
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $user),
             'message' => 'Seance marked as completed'
         ]);
     }
 
     #[Route('/{id}/assign', name: 'seance_assign', methods: ['POST'])]
     #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent assigner des séances.')]
-    public function assign(int $id, Request $request): JsonResponse
+    public function assign(int $id, Request $request, #[CurrentUser] User $coach): JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
@@ -327,14 +338,14 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $coach),
             'message' => 'Seance assigned successfully'
         ]);
     }
 
     #[Route('/{id}/assign', name: 'seance_unassign', methods: ['DELETE'])]
     #[IsGranted('ROLE_COACH', message: 'Seuls les coachs peuvent désassigner des séances.')]
-    public function unassign(int $id, Request $request): JsonResponse
+    public function unassign(int $id, Request $request, #[CurrentUser] User $coach): JsonResponse
     {
         $seance = $this->em->getRepository(Seance::class)->find($id);
 
@@ -371,7 +382,7 @@ final class SeanceController extends AbstractController
 
         return $this->json([
             'status' => true,
-            'data' => $seance,
+            'data' => $this->serializeSeance($seance, $coach),
             'message' => 'Seance unassigned successfully'
         ]);
     }
@@ -408,23 +419,30 @@ final class SeanceController extends AbstractController
     }
 
     /**
-     * Les clients assignés à une séance : tous les utilisateurs liés, sauf les coachs
-     * (le coach créateur est lui aussi lié à sa séance, mais ce n'est pas un "client assigné").
+     * Les lignes seance_user des CLIENTS assignés à une séance. On exclut les coachs :
+     * le coach créateur est lié à sa séance, mais ce n'est pas un "client assigné".
      *
+     * @return SeanceUser[]
+     */
+    private function findClientLinks(Seance $seance): array
+    {
+        $links = [];
+
+        foreach ($this->seanceUserRepository->findBy(['seance' => $seance]) as $link) {
+            if (!in_array('ROLE_COACH', $link->getUser()->getRoles(), true)) {
+                $links[] = $link;
+            }
+        }
+
+        return $links;
+    }
+
+    /**
      * @return User[]
      */
     private function findAssignedClients(Seance $seance): array
     {
-        $clients = [];
-
-        foreach ($this->seanceUserRepository->findBy(['seance' => $seance]) as $seanceUser) {
-            $linkedUser = $seanceUser->getUser();
-            if (!in_array('ROLE_COACH', $linkedUser->getRoles(), true)) {
-                $clients[] = $linkedUser;
-            }
-        }
-
-        return $clients;
+        return array_map(fn (SeanceUser $link) => $link->getUser(), $this->findClientLinks($seance));
     }
 
     private function serializeClient(User $user): array
@@ -438,19 +456,53 @@ final class SeanceController extends AbstractController
         ];
     }
 
-    private function serializeListItem(Seance $seance): array
+    /**
+     * Sérialise une séance pour l'API.
+     *
+     * @param User|null $viewer celui qui consulte : "completedAt" est SON statut personnel
+     *                          (ou celui du client dont le coach regarde les séances).
+     *                          "completedCount" / "assigneeCount" donnent la vue d'ensemble au coach.
+     */
+    private function serializeSeance(Seance $seance, ?User $viewer): array
     {
+        $clientLinks = $this->findClientLinks($seance);
+
+        $completedCount = 0;
+        foreach ($clientLinks as $link) {
+            if ($link->getCompletedAt() !== null) {
+                $completedCount++;
+            }
+        }
+
         return [
             'id' => $seance->getId(),
             'name' => $seance->getName(),
             'duration' => $seance->getDuration(),
             'comment' => $seance->getComment(),
             'level' => $seance->getLevel()?->value,
-            'completedAt' => $seance->getCompletedAt()?->format('Y-m-d H:i:s'),
+            'completedAt' => $this->viewerCompletedAt($seance, $viewer),
             'createdAt' => $seance->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $seance->getUpdatedAt()?->format('Y-m-d H:i:s'),
-            'assigneeCount' => count($this->findAssignedClients($seance)),
+            'assigneeCount' => count($clientLinks),
+            'completedCount' => $completedCount,
         ];
+    }
+
+    /**
+     * La date à laquelle $viewer a marqué cette séance comme terminée, ou null.
+     */
+    private function viewerCompletedAt(Seance $seance, ?User $viewer): ?string
+    {
+        if ($viewer === null) {
+            return null;
+        }
+
+        $link = $this->seanceUserRepository->findOneBy(['seance' => $seance, 'user' => $viewer]);
+        if ($link === null) {
+            return null;
+        }
+
+        return $link->getCompletedAt()?->format('Y-m-d H:i:s');
     }
 
     /**

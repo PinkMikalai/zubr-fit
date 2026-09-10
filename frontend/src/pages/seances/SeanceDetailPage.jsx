@@ -84,8 +84,18 @@ function SeanceDetailPage() {
 
   // La gestion (modifier/supprimer/assignation) est réservée au coach (voir isCoach du contexte).
   // Un client voit sa séance en lecture seule, mais peut la marquer comme terminée.
+  //
+  // Le statut affiché dépend de qui regarde :
+  //  - client : SON statut perso (seance.completedAt)
+  //  - coach  : la vue d'ensemble (X clients sur Y ont terminé)
   let statusLabel = 'En cours';
-  if (seance.completedAt) {
+  if (isCoach) {
+    if (seance.assigneeCount === 0) {
+      statusLabel = 'Aucun client assigné';
+    } else {
+      statusLabel = `${seance.completedCount} / ${seance.assigneeCount} client(s) ont terminé`;
+    }
+  } else if (seance.completedAt) {
     statusLabel = `Terminée le ${formatDate(seance.completedAt)}`;
   }
 
@@ -95,8 +105,9 @@ function SeanceDetailPage() {
     levelBadge = <span className="seance-card-level">{getLevelLabel(seance)}</span>;
   }
 
+  // Seul le client marque SA séance comme terminée (le coach ne fait pas la séance).
   let completeButton = null;
-  if (!seance.completedAt) {
+  if (!isCoach && !seance.completedAt) {
     completeButton = (
       <button onClick={handleComplete} className="button-success">
         Marquer comme terminée
