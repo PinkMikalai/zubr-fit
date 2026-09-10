@@ -3,11 +3,19 @@ import usersIcon from '../../assets/icons/users.svg';
 import { getLevelLabel } from '../../utils/exerciseLabels';
 import { formatDate } from '../../utils/formatDate';
 
-function SeanceCard({ seance, onDelete }) {
+// showAggregate : quand un coach regarde SA liste de séances, le statut est une vue
+// d'ensemble ("2 / 3 clients ont terminé"). Sinon (client, ou coach qui regarde les
+// séances d'UN client précis), on affiche le statut personnel de la séance.
+function SeanceCard({ seance, onDelete, showAggregate }) {
   // On prépare le statut à afficher AVANT le return, avec un if/else classique.
-  // Si la séance est terminée, on affiche aussi la date à laquelle elle l'a été.
   let statusLabel = 'En cours';
-  if (seance.completedAt) {
+  if (showAggregate) {
+    if (seance.assigneeCount === 0) {
+      statusLabel = 'Aucun client assigné';
+    } else {
+      statusLabel = `${seance.completedCount} / ${seance.assigneeCount} client(s) ont terminé`;
+    }
+  } else if (seance.completedAt) {
     statusLabel = `Terminée le ${formatDate(seance.completedAt)}`;
   }
 
@@ -17,10 +25,9 @@ function SeanceCard({ seance, onDelete }) {
     levelTag = <span className="seance-card-level">{getLevelLabel(seance)}</span>;
   }
 
-  // Le nombre de clients assignés n'est renvoyé que par la liste des séances (pas par le détail),
-  // donc on vérifie qu'il existe avant de l'afficher
+  // Le nombre de clients assignés : seulement dans la vue d'ensemble du coach
   let assigneeCount = null;
-  if (seance.assigneeCount !== undefined) {
+  if (showAggregate) {
     assigneeCount = (
       <p className="seance-card-assignees">
         <img src={usersIcon} alt="" />

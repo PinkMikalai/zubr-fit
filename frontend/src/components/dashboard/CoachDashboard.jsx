@@ -57,7 +57,14 @@ function CoachDashboard({ user }) {
     return <p>Chargement...</p>;
   }
 
-  const completedCount = seances.filter((seance) => seance.completedAt).length;
+  // Une séance est "terminée" côté coach quand tous les clients assignés l'ont faite.
+  // (le statut vit désormais par client, sur l'assignation — voir SeanceUser.completedAt)
+  const completedCount = seances.filter((seance) => {
+    if (seance.assigneeCount === 0) {
+      return false;
+    }
+    return seance.completedCount === seance.assigneeCount;
+  }).length;
   const pendingCount = seances.length - completedCount;
 
   // On prépare les phrases de détail AVANT le return, avec des if/else classiques
